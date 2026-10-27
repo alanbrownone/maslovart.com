@@ -54,6 +54,22 @@
   form.getintouch{max-width:560px;display:flex;flex-direction:column;gap:14px;margin-top:8px;} form.getintouch input,form.getintouch textarea{border:1px solid #d6d6d2;border-radius:6px;padding:11px 13px;font-size:15px;font-family:inherit;}
   .contactgrid{display:grid;grid-template-columns:1fr 1fr;gap:50px;} .cinfo div{margin:0 0 14px;font-size:16px;} .cinfo .lbl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#999;} .cinfo a{color:var(--teal);text-decoration:none;}
   footer{background:#17201e;color:#d7ded9;margin-top:40px;flex-shrink:0;} .foot{max-width:1180px;margin:0 auto;padding:34px 28px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;} .foot img{height:40px;width:auto;} .foot .fl a{color:#cfe0d9;text-decoration:none;font-size:13px;margin-right:12px;} .foot .cp{font-size:12px;color:#8aa29a;}
+
+  /* NEW PRINTS (series > gallery > single print) */
+  .np{display:grid;grid-template-columns:1fr 300px;gap:44px;align-items:start;}
+  .np h1.nph{font-size:22px;font-weight:700;margin:0 0 22px;}
+  .npgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 24px;}
+  .npgrid .card .ph{aspect-ratio:1/1;border:1px solid #d9d9d5;} .npgrid .card .cap{text-align:center;font-weight:500;font-size:15px;line-height:1.35;}
+  .npside{display:flex;flex-direction:column;gap:26px;} .npside a{display:block;border-radius:4px;overflow:hidden;} .npside img{width:100%;display:block;} .npside a:hover{box-shadow:0 8px 22px rgba(0,0,0,.2);}
+  .pager{display:flex;align-items:center;gap:14px;margin-top:30px;font-size:15px;font-style:italic;color:#333;} .pager a{border:1px solid #d6d6d2;border-radius:6px;padding:6px 12px;font-style:normal;font-size:14px;color:#333;text-decoration:none;} .pager a:hover{border-color:var(--teal2);color:var(--teal2);} .pager a.off{opacity:.35;pointer-events:none;}
+  .one{text-align:center;max-width:620px;margin:0 auto;} .one .frame{background:#f4f4f2;display:flex;align-items:center;justify-content:center;min-height:280px;} .one .frame img{max-width:100%;max-height:70vh;display:block;}
+  .one h2{font-size:20px;font-weight:500;margin:16px 0 4px;} .one .by{color:#777;font-size:14px;margin:0 0 18px;}
+  .one select{width:100%;max-width:320px;padding:11px 12px;font-size:15px;border:1px solid #bdbdb8;border-radius:6px;background:#fff;font-family:inherit;}
+  .one .price{font-size:20px;font-weight:600;margin:14px 0 4px;min-height:26px;} .one .buy{width:100%;max-width:320px;margin-top:8px;} .one .buy:disabled{background:#b9c9c5;cursor:not-allowed;}
+  .one .msg{font-size:14px;color:var(--teal);margin-top:12px;min-height:20px;} .one .fine{font-size:12.5px;color:#999;margin-top:6px;}
+  .one .pager{justify-content:center;}
+  .npkick a{color:var(--teal2);text-decoration:none;}
+  @media(max-width:820px){.np{grid-template-columns:1fr;gap:34px;} .npgrid{grid-template-columns:repeat(2,1fr);gap:22px 16px;} .npside{flex-direction:row;gap:14px;} .npside a{flex:1;}}
   @media(max-width:820px){nav.main,.tools .search{display:none;} .hamb{display:block;} nav.main.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:#fff;border-bottom:1px solid #e8e8e4;box-shadow:0 10px 22px rgba(0,0,0,.10);padding:4px 0;gap:0;z-index:30;} nav.main.open a{padding:13px 28px;border-bottom:1px solid #f3f3f1;border-top:0;} .homegrid,.artist-top,.detail,.viewer,.contactgrid,.prints-two{grid-template-columns:1fr;} .portrait{width:180px;height:230px;} .coll{columns:1;} .posts .post{grid-template-columns:1fr;}}
 </style></head>
 <body>
@@ -146,6 +162,39 @@
       <p style="font-size:12.5px;color:#aaa;margin-top:10px">Tax calculated at checkout &middot; free shipping</p></div></div>
 </section>
 
+<section data-page="newprints" class="pg"><div class="np"><div>
+  <p class="kick npkick"><a href="#/prints">Prints</a> &nbsp;&rsaquo;&nbsp; New Prints</p>
+  <h1 class="nph">New Prints</h1>
+  <div class="npgrid" id="npsets"></div></div>
+  <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
+</section>
+
+<section data-page="newseries" class="pg"><div class="np"><div>
+  <p class="kick npkick"><a href="#/prints">Prints</a> &nbsp;&rsaquo;&nbsp; <a href="#/prints/new">New Prints</a></p>
+  <h1 class="nph" id="nsttl"></h1>
+  <div class="npgrid" id="nsgrid"></div>
+  <div class="pager"><a id="nsprev" href="#">&larr; Previous</a><span id="nspage"></span><a id="nsnext" href="#">Next &rarr;</a></div></div>
+  <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
+</section>
+
+<section data-page="newprint" class="pg"><div class="np"><div>
+  <p class="kick npkick"><a href="#/prints">Prints</a> &nbsp;&rsaquo;&nbsp; <a href="#/prints/new">New Prints</a> &nbsp;&rsaquo;&nbsp; <a id="npback" href="#"></a></p>
+  <h1 class="nph" id="npttl"></h1>
+  <div class="one">
+    <div class="frame"><img id="npimg" alt=""></div>
+    <h2 id="npname"></h2>
+    <p class="by">Guennadi Maslov &middot; archival pigment print &middot; made to order</p>
+    <label for="npsize" style="display:block;font-size:14px;font-weight:600;margin-bottom:6px">Print size</label>
+    <select id="npsize"><option value="">Choose a size&hellip;</option></select>
+    <div class="price" id="npprice"></div>
+    <button class="buy" id="npbuy" type="button" disabled>Purchase</button>
+    <div class="msg" id="npmsg"></div>
+    <p class="fine">Sizes and prices are examples for this preview.</p>
+    <div class="pager"><a id="npprev" href="#">&larr; Previous</a><span id="npcount"></span><a id="npnext" href="#">Next &rarr;</a></div>
+  </div></div>
+  <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
+</section>
+
 <section data-page="blog" class="pg">
   <p class="kick">Blog</p><h1 class="ttl serif">Notes on photography</h1>
   <p class="lede">Share your thoughts about photography. Explore current news and timeless texts on producing meaningful images.</p>
@@ -199,8 +248,36 @@
     document.getElementById("imgttl").textContent=st.name+", no. "+n;document.getElementById("imgcount").textContent=n+" of "+st.count;
     document.getElementById("imgprev").href="#/image/"+st.slug+"/"+(n>1?n-1:st.count);document.getElementById("imgnext").href="#/image/"+st.slug+"/"+(n<st.count?n+1:1);}
   document.addEventListener("keydown",function(e){if(!document.querySelector('section[data-page="image"].active'))return;if(e.key=="ArrowLeft")location.hash=document.getElementById("imgprev").getAttribute("href");if(e.key=="ArrowRight")location.hash=document.getElementById("imgnext").getAttribute("href");});
-  var routes={"":"home","#/":"home","#/artist":"artist","#/portfolio":"portfolio","#/prints":"prints","#/prints/new":"printsgal","#/prints/vintage":"printsgal","#/blog":"blog","#/blogpost":"blogpost","#/contact":"contact","#/printdetail":"printdetail"};
-  var navmap={artist:0,portfolio:1,category:1,image:1,prints:2,printsgal:2,printdetail:2,blog:3,blogpost:3,contact:4};
+  // NEW PRINTS: series list > one series (6 per page) > single print with size dropdown
+  var SIZES=[["11 x 14 in",110],["16 x 20 in",150],["20 x 30 in",200],["24 x 36 in",220]], PER=6;
+  function full(st,n){return "images/"+st.slug+"/"+pad(n)+".jpg";}
+  (function(){var hb=document.querySelectorAll('.hbtn img');
+    document.querySelectorAll('.npb-new').forEach(function(i){i.src=hb[0].src;});
+    document.querySelectorAll('.npb-vin').forEach(function(i){i.src=hb[1].src;});
+    var h="";SETS.forEach(function(st){h+='<a class="card" href="#/prints/new/'+st.slug+'"><div class="ph" style="background-image:url('+th(st,1)+')"></div><div class="cap">'+st.name+'</div></a>';});
+    document.getElementById("npsets").innerHTML=h;
+    var o="";SIZES.forEach(function(z,i){o+='<option value="'+i+'">'+z[0]+' &middot; $'+z[1]+'</option>';});
+    var sel=document.getElementById("npsize");sel.insertAdjacentHTML("beforeend",o);
+    sel.addEventListener("change",function(){var z=SIZES[sel.value];document.getElementById("npmsg").textContent="";
+      document.getElementById("npprice").textContent=z?"$"+z[1]:"";document.getElementById("npbuy").disabled=!z;});
+    document.getElementById("npbuy").addEventListener("click",function(){var z=SIZES[sel.value];if(!z)return;
+      document.getElementById("npmsg").textContent="Added "+z[0]+" print to your cart. (Preview only: checkout comes later.)";});
+  })();
+  function fillSeries(st,p){var pages=Math.ceil(st.count/PER);p=Math.min(Math.max(p,1),pages);
+    document.getElementById("nsttl").textContent="New Prints: "+st.name;
+    var g="";for(var n=(p-1)*PER+1;n<=Math.min(p*PER,st.count);n++)g+='<a class="card" href="#/prints/new/'+st.slug+'/'+n+'"><div class="ph" style="background-image:url('+th(st,n)+')"></div><div class="cap">'+st.name+' '+n+'</div></a>';
+    document.getElementById("nsgrid").innerHTML=g;document.getElementById("nspage").textContent="Page "+p+" of "+pages;
+    var pv=document.getElementById("nsprev"),nx=document.getElementById("nsnext");
+    pv.href="#/prints/new/"+st.slug+"/page/"+(p-1);pv.classList.toggle("off",p<=1);
+    nx.href="#/prints/new/"+st.slug+"/page/"+(p+1);nx.classList.toggle("off",p>=pages);}
+  function fillPrint(st,n){var b=document.getElementById("npback");b.textContent=st.name;b.href="#/prints/new/"+st.slug+"/page/"+Math.ceil(n/PER);
+    document.getElementById("npttl").textContent="New Prints: "+st.name;
+    var im=document.getElementById("npimg");im.src=full(st,n);im.alt=st.name+" "+n;
+    document.getElementById("npname").textContent=st.name+" "+n;document.getElementById("npcount").textContent="Image "+n+" of "+st.count;
+    document.getElementById("npprev").href="#/prints/new/"+st.slug+"/"+(n>1?n-1:st.count);document.getElementById("npnext").href="#/prints/new/"+st.slug+"/"+(n<st.count?n+1:1);
+    document.getElementById("npsize").value="";document.getElementById("npprice").textContent="";document.getElementById("npbuy").disabled=true;document.getElementById("npmsg").textContent="";}
+  var routes={"":"home","#/":"home","#/artist":"artist","#/portfolio":"portfolio","#/prints":"prints","#/prints/new":"newprints","#/prints/vintage":"printsgal","#/blog":"blog","#/blogpost":"blogpost","#/contact":"contact","#/printdetail":"printdetail"};
+  var navmap={artist:0,portfolio:1,category:1,image:1,prints:2,printsgal:2,printdetail:2,newprints:2,newseries:2,newprint:2,blog:3,blogpost:3,contact:4};
   function show(pg){
     document.querySelectorAll('section[data-page]').forEach(function(s){s.classList.toggle('active',s.dataset.page==pg);});
     var links=document.querySelectorAll('nav.main a'); links.forEach(function(l){l.classList.remove('active');});
@@ -208,7 +285,7 @@
     window.scrollTo(0,0);
   }
   function route(){var nv=document.getElementById("nav"); if(nv) nv.classList.remove("open"); var h=location.hash||"#/";var pg=routes[h];
-    if(!pg){ var m; if((m=h.match(/^#\/portfolio\/([^\/]+)$/))&&findSet(m[1])){fillCat(findSet(m[1]));pg="category";} else if((m=h.match(/^#\/image\/([^\/]+)\/(\d+)$/))&&findSet(m[1])){var st=findSet(m[1]),n=Math.min(Math.max(+m[2],1),st.count);fillImg(st,n);pg="image";} else pg="home"; }
+    if(!pg){ var m; if((m=h.match(/^#\/prints\/new\/([^\/]+)(?:\/page\/(\d+))?$/))&&findSet(m[1])){fillSeries(findSet(m[1]),+(m[2]||1));pg="newseries";} else if((m=h.match(/^#\/prints\/new\/([^\/]+)\/(\d+)$/))&&findSet(m[1])){var s2=findSet(m[1]);fillPrint(s2,Math.min(Math.max(+m[2],1),s2.count));pg="newprint";} else if((m=h.match(/^#\/portfolio\/([^\/]+)$/))&&findSet(m[1])){fillCat(findSet(m[1]));pg="category";} else if((m=h.match(/^#\/image\/([^\/]+)\/(\d+)$/))&&findSet(m[1])){var st=findSet(m[1]),n=Math.min(Math.max(+m[2],1),st.count);fillImg(st,n);pg="image";} else pg="home"; }
     show(pg);}
   window.addEventListener('hashchange',route);route();
 </script></body></html>
