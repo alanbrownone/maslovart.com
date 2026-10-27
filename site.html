@@ -40,6 +40,9 @@
   .note{background:#f7f7f4;border:1px solid #eee;border-radius:8px;padding:10px 14px;font-size:13px;color:#777;margin:0 0 26px;}
   .detail{display:grid;grid-template-columns:1.4fr 1fr;gap:44px;align-items:start;}
   .detail .big{width:100%;aspect-ratio:4/3;background:#ccc center/cover;border:1px solid #e3e3e3;}
+  .viewer{display:grid;grid-template-columns:1fr 280px;gap:40px;align-items:start;} .viewer .frame{background:#f4f4f2;display:flex;align-items:center;justify-content:center;min-height:300px;} .viewer .frame img{max-width:100%;max-height:78vh;display:block;}
+  .pnav{display:flex;gap:10px;margin:18px 0;} .pnav a{border:1px solid #d6d6d2;border-radius:6px;padding:8px 14px;font-size:14px;color:#333;text-decoration:none;} .pnav a:hover{border-color:var(--teal2);color:var(--teal2);}
+  .intro p{margin:0 0 14px;} .intro .by{font-style:normal;font-size:14px;color:#888;}
   .pill{display:inline-block;font-size:13px;padding:5px 12px;border-radius:20px;background:#e5f3ef;color:var(--teal);font-weight:600;}
   .sizebtns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;} .sb{border:1px solid #d6d6d2;border-radius:6px;padding:8px 12px;font-size:14px;background:#fff;} .sb.sel{border:2px solid var(--teal2);background:#e5f3ef;color:var(--teal);font-weight:600;}
   .buy{background:var(--teal2);color:#fff;border:none;border-radius:6px;padding:12px 26px;font-size:15px;font-weight:600;cursor:pointer;}
@@ -51,7 +54,7 @@
   form.getintouch{max-width:560px;display:flex;flex-direction:column;gap:14px;margin-top:8px;} form.getintouch input,form.getintouch textarea{border:1px solid #d6d6d2;border-radius:6px;padding:11px 13px;font-size:15px;font-family:inherit;}
   .contactgrid{display:grid;grid-template-columns:1fr 1fr;gap:50px;} .cinfo div{margin:0 0 14px;font-size:16px;} .cinfo .lbl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#999;} .cinfo a{color:var(--teal);text-decoration:none;}
   footer{background:#17201e;color:#d7ded9;margin-top:40px;flex-shrink:0;} .foot{max-width:1180px;margin:0 auto;padding:34px 28px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;} .foot img{height:40px;width:auto;} .foot .fl a{color:#cfe0d9;text-decoration:none;font-size:13px;margin-right:12px;} .foot .cp{font-size:12px;color:#8aa29a;}
-  @media(max-width:820px){nav.main,.tools .search{display:none;} .hamb{display:block;} nav.main.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:#fff;border-bottom:1px solid #e8e8e4;box-shadow:0 10px 22px rgba(0,0,0,.10);padding:4px 0;gap:0;z-index:30;} nav.main.open a{padding:13px 28px;border-bottom:1px solid #f3f3f1;border-top:0;} .homegrid,.artist-top,.detail,.contactgrid,.prints-two{grid-template-columns:1fr;} .portrait{width:180px;height:230px;} .coll{columns:1;} .posts .post{grid-template-columns:1fr;}}
+  @media(max-width:820px){nav.main,.tools .search{display:none;} .hamb{display:block;} nav.main.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:#fff;border-bottom:1px solid #e8e8e4;box-shadow:0 10px 22px rgba(0,0,0,.10);padding:4px 0;gap:0;z-index:30;} nav.main.open a{padding:13px 28px;border-bottom:1px solid #f3f3f1;border-top:0;} .homegrid,.artist-top,.detail,.viewer,.contactgrid,.prints-two{grid-template-columns:1fr;} .portrait{width:180px;height:230px;} .coll{columns:1;} .posts .post{grid-template-columns:1fr;}}
 </style></head>
 <body>
 <header><div class="bar">
@@ -95,28 +98,27 @@
 
 <section data-page="portfolio" class="pg">
   <p class="kick">Portfolio</p><h1 class="ttl serif">Bodies of work</h1>
-  <p class="lede">Selected series. Each holds 8&ndash;12 photographs.</p>
-  <p class="note">Category titles and groupings are placeholders &mdash; the final set is still being decided.</p>
-  <div class="grid"><a class="card" href="#/portfolio/ukrainian-time"><div class="ph" style="background-image:url(https://picsum.photos/seed/ukrainian-time/600/600?grayscale)"></div><div class="cap">Ukrainian Time</div></a><a class="card" href="#/portfolio/annotations"><div class="ph" style="background-image:url(https://picsum.photos/seed/annotations/600/600?grayscale)"></div><div class="cap">Annotations</div></a><a class="card" href="#/portfolio/exclusion-zone"><div class="ph" style="background-image:url(https://picsum.photos/seed/exclusion-zone/600/600?grayscale)"></div><div class="cap">Exclusion Zone</div></a><a class="card" href="#/portfolio/volunteers"><div class="ph" style="background-image:url(https://picsum.photos/seed/volunteers/600/600?grayscale)"></div><div class="cap">Volunteers</div></a><a class="card" href="#/portfolio/sixes"><div class="ph" style="background-image:url(https://picsum.photos/seed/sixes/600/600?grayscale)"></div><div class="cap">Sixes</div></a><a class="card" href="#/portfolio/amer-panos"><div class="ph" style="background-image:url(https://picsum.photos/seed/amer-panos/600/600?grayscale)"></div><div class="cap">Amer Panos</div></a></div>
+  <p class="lede">Selected series from Guennadi&rsquo;s current website.</p>
+  <p class="note">Photos and their order are copied from the current maslovart.com. Photo titles still to be added.</p>
+  <div class="grid" id="setgrid"></div>
 </section>
 
 <section data-page="category" class="pg">
-  <p class="kick"><a href="#/portfolio" style="color:var(--teal2);text-decoration:none">Portfolio</a> &nbsp;&rsaquo;&nbsp; Ukrainian Time</p>
-  <h1 class="ttl serif">Ukrainian Time</h1>
-  <div class="lede serif" style="font-style:italic;color:#444">
-    <p>It helps to be far from my elusive heroes. I discover it again and again every year. Two or three weeks are enough. After that you have to go home and start to sort out what you have just seen. Because what you saw in that vast and mysterious part of the world called Eastern Europe, is always psychologically huge.</p>
-    <p>My heroes live by very different rules. They often must compromise. Honor and money, honesty and greed, health and pleasure, memory and truth. From all of this, I derive my own compromise &ndash; that between art and document.</p></div>
-  <div class="grid" style="margin-top:34px"><a class="card" href="#/image/ukr-1"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr1/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-2"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr2/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-3"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr3/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-4"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr4/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-5"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr5/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-6"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr6/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-7"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr7/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-8"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr8/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-9"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr9/600/600?grayscale)"></div></a><a class="card" href="#/image/ukr-10"><div class="ph sq" style="background-image:url(https://picsum.photos/seed/ukr10/600/600?grayscale)"></div></a></div>
+  <p class="kick"><a href="#/portfolio" style="color:var(--teal2);text-decoration:none">Portfolio</a> &nbsp;&rsaquo;&nbsp; <span id="catkick"></span></p>
+  <h1 class="ttl serif" id="catttl"></h1>
+  <div class="lede serif intro" style="font-style:italic;color:#444" id="catintro"></div>
+  <div class="grid" style="margin-top:34px" id="catgrid"></div>
 </section>
 
 <section data-page="image" class="pg">
-  <p class="kick"><a href="#/portfolio/ukrainian-time" style="color:var(--teal2);text-decoration:none">Ukrainian Time</a></p>
-  <div class="detail"><div class="big" style="background-image:url(https://picsum.photos/seed/detail9/900/675?grayscale)"></div>
-    <div><h1 class="ttl serif" style="font-size:26px">Borderland, no. 4</h1>
-      <p style="color:#666;margin:2px 0 16px">Guennadi Maslov &middot; archival pigment print</p>
+  <p class="kick"><a id="imgkick" href="#/portfolio" style="color:var(--teal2);text-decoration:none"></a></p>
+  <div class="viewer"><div class="frame"><img id="imgbig" alt=""></div>
+    <div><h1 class="ttl serif" style="font-size:26px" id="imgttl"></h1>
+      <p style="color:#666;margin:2px 0 6px">Guennadi Maslov</p>
+      <p style="color:#999;margin:0 0 6px;font-size:14px" id="imgcount"></p>
+      <div class="pnav"><a id="imgprev" href="#">&larr; Previous</a><a id="imgnext" href="#">Next &rarr;</a></div>
       <p class="pill">Available as a print &rarr;</p>
-      <p style="font-size:14px;color:#666;line-height:1.7;margin-top:18px">Selecting &ldquo;Available as a print&rdquo; takes the visitor to this image&rsquo;s product in New&nbsp;Prints or Vintage&nbsp;Prints, where they choose a size and order.</p>
-      <p style="font-size:13px;color:#aaa">(Display-only images instead show &ldquo;Not available for purchase.&rdquo;)</p></div></div>
+      <p style="font-size:13px;color:#aaa;margin-top:14px">(Title to be added. Print availability to be decided.)</p></div></div>
 </section>
 
 <section data-page="prints" class="pg">
@@ -184,6 +186,19 @@
   <div class="fl"><a href="#/">Shipping Info</a><a href="#/">Terms &amp; Conditions</a><a href="#/contact">Contact</a></div>
   <div class="cp">All images &copy; Guennadi Maslov &middot; All rights reserved</div></div></footer>
 <script>
+  var SETS=[{"slug": "ukrainian-time", "name": "Ukrainian Time", "count": 22, "intro": ["The flow of time is frivolous in Ukraine. Though Tuesdays usually follow Mondays like everywhere else, the logic of how the time current is perceived and entangled with the people’s souls and minds, makes me speak about UKRAINIAN TIME.", "History and circumstance have made Eastern Europe a colossal testing ground for human endurance and endeavor. This ground is inhabited by my heroes, whom I see sometimes as proud and earnest, and sometimes as eccentric and confused.", "Life never stops for the 45 million energetic, resourceful and lyrical people who call themselves Ukrainians. Looking into the nation’s character, the one hundred photographs in this book endeavor to trace lives and emotions of ordinary people, to illustrate the inner struggle and beauty of individuals living through a most dramatic time in their country’s history."], "by": ""}, {"slug": "annotations", "name": "Annotations", "count": 31, "intro": ["The series is based on the simple fact that one image is often not enough to express a complex idea.", "Multiple photo illustrations appeared in American and European magazines in the late 1920’s. The success of this approach led to the Golden Age of magazine photojournalism in the 1950-1970’s when pages and pages of documentary photographs were sparsely illustrated with short textual notes.", "Maslov’s work, however, belongs to a completely different realm of combined imaging. His Annotations are more psychological insight than document. Deeply rooted in reality they are strangely enigmatic.", "The artist is obviously concerned with social themes and the mysteries of growing up. Political undertones can be discovered in some of the images. But these themes are neither dominant, nor critical. The smaller image in each pair is noticed and examined just a second after the mental absorption of the larger one. In most cases this footnote photo redirects the first impression considerably, enhancing it with an important layer, forming a new unity. And in that I see the Annotations’ strength and beauty."], "by": "Claude Paar"}, {"slug": "this-land-is-my-land", "name": "This Land is My Land", "count": 39, "intro": ["Panoramic photography is a technique of photography, using specialized equipment or software, which captures images with horizontally elongated fields of view. (Wikipedia, 2017)", "There is something melancholic, something reflective in the panorama. It leads you, your imagination and wonder. But it does not want you too close, it prefers to stay aloof. The panorama is full of beautiful information. This information appears strangely complete and whilst quietly enigmatic."], "by": ""}, {"slug": "from-ukraine-war", "name": "From Ukraine War: With and Without Love", "count": 22, "intro": ["Steppe: a large, flat area of land with grass and very few trees especially in Eastern Europe and Asia. (Merriam-Webster Learner’s Dictionary, 2017)", "The scars of human activity defy the dictionary description. For centuries people have dug into the steppe’s belly extracting coal and ore. For centuries the slagheaps have been growing nearby. The war came seven years ago with its mine-craters and shell-holes. Hiding from the metal flying around, the people covered the area with trenches and dug-outs. No mercy to each other, no mercy to the “flat area with grass”.", "But the steppe will survive. Like it did after the hurricane of WW2 that scorched this land 80 years ago. Will the people survive? They hide from each other’s shots, (while seeking targets for shots of their own); more metal flies. Ten thousand four hundred have died in this war by December 2017. Most of them are buried here, in the steppe. Many were put to rest where they had come from: hundreds of villages and towns in Ukraine and Russia. The steppe is silent, the steppe keeps low profile…"], "by": ""}, {"slug": "stealing-time", "name": "Stealing Time", "count": 23, "intro": ["What happens to the moment that just zoomed by my temple a second ago? Where does it go after ruffling my senses and counting my next heartbeat? The camera in my hands is a moment hunting weapon. It is a tool of beauty and love. It absorbs the illusive instant and locks it in the pixel cage of illusion – the illusion of immortality and possession.", "A scrooge, I feed the seized slice of existence into my computer. This moment is mine and mine only. I save it and name it; I prepare it for the ritual of digital mummification. I am a proud proprietor of salvaged moments…"], "by": ""}, {"slug": "soul-time", "name": "Soul Time", "count": 19, "intro": ["There is something absorbing and enigmatic about the dim journey over your own soul and memory that takes place at night. Did you ever try to write down your dreams? I photograph them instead. The best time is right before dawn. I know all the stories behind these foggy images. Some people say they can see echoes of their own experience in these ephemeral visual cocktails. Real events often creep into them, as well as some historical figures. I do not try to keep them out. Actually, I have come to enjoy their company!"], "by": ""}];
+  function pad(n){return (n<10?"0":"")+n;}
+  function th(st,n){return "images/"+st.slug+"/thumbs/"+pad(n)+".jpg";}
+  function findSet(slug){for(var i=0;i<SETS.length;i++)if(SETS[i].slug==slug)return SETS[i];return null;}
+  (function(){var g=document.getElementById("setgrid"),h="";SETS.forEach(function(st){h+='<a class="card" href="#/portfolio/'+st.slug+'"><div class="ph sq" style="background-image:url('+th(st,1)+')"></div><div class="cap">'+st.name+'</div><div style="font-size:13px;color:#999">'+st.count+' photographs</div></a>';});g.innerHTML=h;})();
+  function fillCat(st){document.getElementById("catkick").textContent=st.name;document.getElementById("catttl").textContent=st.name;
+    var h="";st.intro.forEach(function(p){h+="<p>"+p+"</p>";});if(st.by)h+='<p class="by">&mdash; '+st.by+'</p>';document.getElementById("catintro").innerHTML=h;
+    var g="";for(var n=1;n<=st.count;n++)g+='<a class="card" href="#/image/'+st.slug+'/'+n+'"><div class="ph sq" style="background-image:url('+th(st,n)+')"></div></a>';document.getElementById("catgrid").innerHTML=g;}
+  function fillImg(st,n){var k=document.getElementById("imgkick");k.textContent=st.name;k.href="#/portfolio/"+st.slug;
+    document.getElementById("imgbig").src="images/"+st.slug+"/"+pad(n)+".jpg";document.getElementById("imgbig").alt=st.name+", no. "+n;
+    document.getElementById("imgttl").textContent=st.name+", no. "+n;document.getElementById("imgcount").textContent=n+" of "+st.count;
+    document.getElementById("imgprev").href="#/image/"+st.slug+"/"+(n>1?n-1:st.count);document.getElementById("imgnext").href="#/image/"+st.slug+"/"+(n<st.count?n+1:1);}
+  document.addEventListener("keydown",function(e){if(!document.querySelector('section[data-page="image"].active'))return;if(e.key=="ArrowLeft")location.hash=document.getElementById("imgprev").getAttribute("href");if(e.key=="ArrowRight")location.hash=document.getElementById("imgnext").getAttribute("href");});
   var routes={"":"home","#/":"home","#/artist":"artist","#/portfolio":"portfolio","#/prints":"prints","#/prints/new":"printsgal","#/prints/vintage":"printsgal","#/blog":"blog","#/blogpost":"blogpost","#/contact":"contact","#/printdetail":"printdetail"};
   var navmap={artist:0,portfolio:1,category:1,image:1,prints:2,printsgal:2,printdetail:2,blog:3,blogpost:3,contact:4};
   function show(pg){
@@ -193,7 +208,7 @@
     window.scrollTo(0,0);
   }
   function route(){var nv=document.getElementById("nav"); if(nv) nv.classList.remove("open"); var h=location.hash||"#/";var pg=routes[h];
-    if(!pg){ if(h.indexOf("#/portfolio/")==0)pg="category"; else if(h.indexOf("#/image/")==0)pg="image"; else pg="home"; }
+    if(!pg){ var m; if((m=h.match(/^#\/portfolio\/([^\/]+)$/))&&findSet(m[1])){fillCat(findSet(m[1]));pg="category";} else if((m=h.match(/^#\/image\/([^\/]+)\/(\d+)$/))&&findSet(m[1])){var st=findSet(m[1]),n=Math.min(Math.max(+m[2],1),st.count);fillImg(st,n);pg="image";} else pg="home"; }
     show(pg);}
   window.addEventListener('hashchange',route);route();
 </script></body></html>
