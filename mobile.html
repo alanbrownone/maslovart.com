@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Maslov Art — Mobile</title>
+<style>
+  body{margin:0;background:#f1f1ef;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh;}
+  .backbar{position:fixed;top:12px;left:12px;z-index:9999;}
+  .backbar a{display:inline-flex;align-items:center;gap:6px;background:rgba(23,32,30,.92);color:#fff;text-decoration:none;font-weight:600;font-size:13px;padding:8px 14px;border-radius:20px;box-shadow:0 3px 10px rgba(0,0,0,.25);}
+  .stage{display:flex;flex-direction:column;align-items:center;padding:60px 16px 50px;}
+  .cap{font-size:13px;color:#777;margin-bottom:18px;}
+  .phone{width:402px;max-width:96vw;background:#111;border-radius:52px;padding:13px;box-shadow:0 20px 54px rgba(0,0,0,.3);}
+  .screen{position:relative;background:#fff;border-radius:40px;overflow:hidden;height:812px;}
+  .island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:120px;height:30px;background:#000;border-radius:18px;z-index:5;}
+  iframe{width:100%;height:100%;border:0;display:block;}
+</style></head>
+<body>
+  <div class="backbar"><a href="index.html">&larr; Back to options</a></div>
+  <div class="stage">
+    <div class="cap">iPhone view &mdash; scroll and tap inside the phone; use the &#9776; menu to navigate.</div>
+    <div class="phone"><div class="screen"><div class="island"></div>
+      <iframe src="site.html" title="Maslov Art — mobile"></iframe>
+    </div></div>
+  </div>
+</body></html>
