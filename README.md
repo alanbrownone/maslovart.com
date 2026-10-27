@@ -9,3 +9,9 @@ It is plain HTML with no build step, so Netlify can publish this folder as-is.
 - `site.html` is the site itself (images are embedded in the file).
 
 These files came from `MaslovArt_WebsiteSpecs.afpub.zip`.
+
+## Photo sets
+
+`images/<set>/NN.jpg` holds Guennadi's photos, copied from the current maslovart.com
+in the same sets and order. `images/<set>/thumbs/` has smaller copies for the grids.
+The list of sets (names, intro text, photo counts) is the `SETS` list near the bottom of `site.html`.
