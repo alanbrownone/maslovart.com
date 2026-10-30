@@ -8,6 +8,8 @@ It is plain HTML with no build step, so Netlify can publish this folder as-is.
   `site.html` is the site itself, `desktop.html` shows it full-width,
   `mobile.html` shows it inside a phone-sized frame.
 - Version 2 (where Guennadi's changes go): `site-v2.html`, `desktop-v2.html`, `mobile-v2.html`.
+- Version 3 (Version 2 plus a 25% gray background behind the content): `site-v3.html`, `desktop-v3.html`, `mobile-v3.html`.
+  Changes to Version 2 should usually be copied into Version 3 too.
 - `images/previews/` holds the screenshots used on the landing page tiles.
   All four tiles show the homepage, so the versions look alike on the landing page.
 
