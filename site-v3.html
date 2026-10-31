@@ -71,6 +71,7 @@
   .decnav{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 26px;} .decnav a{border:1px solid #d6d6d2;border-radius:20px;padding:6px 14px;font-size:14px;color:#333;text-decoration:none;background:#fff;} .decnav a:hover{border-color:var(--teal2);color:var(--teal2);}
   .npgrid.wide{grid-template-columns:repeat(2,1fr);} .grid.wide{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}
   @media(max-width:820px){.vgrid{grid-template-columns:repeat(2,1fr);gap:22px 16px;} .npgrid.wide{grid-template-columns:1fr;}}
+  .askg{margin-top:22px;padding:16px 18px;background:#fff;border:1px solid #e3e3e0;border-radius:10px;text-align:left;} .askg h3{margin:0 0 4px;font-size:16px;} .askg p{margin:0 0 12px;font-size:14px;line-height:1.55;color:#555;} .askg .btns{display:flex;gap:8px;flex-wrap:wrap;} .askg a{flex:1;min-width:92px;text-align:center;border:1px solid var(--teal2);border-radius:6px;padding:9px 10px;font-size:14px;font-weight:600;color:var(--teal);text-decoration:none;} .askg a.em{background:var(--teal2);color:#fff;} .askg a:hover{filter:brightness(1.05);box-shadow:0 2px 8px rgba(0,0,0,.08);} .askg .ph{font-size:13px;color:#888;margin-top:10px;}
   .one .fixedsize{font-size:16px;margin:4px 0 6px;} .one .msg{font-size:14px;color:var(--teal);margin-top:12px;min-height:20px;} .one .fine{font-size:12.5px;color:#999;margin-top:6px;}
   .one .pager{justify-content:center;}
   .npkick a{color:var(--teal2);text-decoration:none;}
@@ -145,7 +146,8 @@
       <p style="color:#999;margin:0 0 6px;font-size:14px" id="imgcount"></p>
       <div class="pnav"><a id="imgprev" href="#">&larr; Previous</a><a id="imgnext" href="#">Next &rarr;</a></div>
       <p class="pill">Available as a print &rarr;</p>
-      <p style="font-size:13px;color:#aaa;margin-top:14px">(Title to be added. Print availability to be decided.)</p></div></div>
+      <p style="font-size:13px;color:#aaa;margin-top:14px">(Title to be added. Print availability to be decided.)</p>
+      <div class="askg" id="askimg"></div></div></div>
 </section>
 
 <section data-page="newprints" class="pg"><div class="np"><div>
@@ -177,6 +179,7 @@
     <button class="buy" id="npbuy" type="button" disabled>Purchase</button>
     <div class="msg" id="npmsg"></div>
     <p class="fine" id="npfine"></p>
+    <div class="askg" id="asknp"></div>
     <div class="pager"><a id="npprev" href="#">&larr; Previous</a><span id="npcount"></span><a id="npnext" href="#">Next &rarr;</a></div>
   </div></div>
   <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
@@ -201,6 +204,7 @@
     <div class="price" id="voprice"></div>
     <button class="buy" id="vobuy" type="button">Purchase</button>
     <div class="msg" id="vomsg"></div>
+    <div class="askg" id="askvo"></div>
     <div class="pager"><a id="voprev" href="#">&larr; Previous</a><span id="vocount"></span><a id="vonext" href="#">Next &rarr;</a></div>
   </div></div>
   <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
@@ -255,9 +259,15 @@
   function fillCat(st){document.getElementById("catkick").textContent=st.name;document.getElementById("catttl").textContent=st.name;
     var h="";st.intro.forEach(function(p){h+="<p>"+p+"</p>";});if(st.by)h+='<p class="by">&mdash; '+st.by+'</p>';document.getElementById("catintro").innerHTML=h;
     var g="";for(var n=1;n<=st.count;n++)g+='<a class="card" href="#/image/'+st.slug+'/'+n+'"><div class="ph sq" style="'+ratioStyle(st)+'background-image:url('+th(st,n)+')"></div></a>';var cg=document.getElementById("catgrid");cg.innerHTML=g;cg.classList.toggle("wide",RATIO[st.slug]=="3/1");}
+  // "Ask Guennadi" box: call, text or email (prefilled with the photo's name)
+  var GPHONE="513-319-3033", GEMAIL="guennadi@maslovart.com";
+  function askBox(id,what){var subj="Question about "+what,body="Hello Guennadi,\n\nI have a question / special request about \""+what+"\":\n\n\n\nMy name:\nMy phone (optional):\n",tel=GPHONE.replace(/\D/g,"");
+    document.getElementById(id).innerHTML='<h3>Questions or a special request?</h3><p>Want a different size, framing advice, or a print you don&rsquo;t see here? Guennadi is happy to help &mdash; just get in touch.</p>'+
+      '<div class="btns"><a class="em" href="mailto:'+GEMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)+'">Email</a><a href="tel:+1'+tel+'">Call</a><a href="sms:+1'+tel+'">Text</a></div>'+
+      '<div class="ph">'+GPHONE+' &middot; '+GEMAIL+'</div>';}
   function fillImg(st,n){var k=document.getElementById("imgkick");k.textContent=st.name;k.href="#/portfolio/"+st.slug;
     document.getElementById("imgbig").src=full(st,n);document.getElementById("imgbig").alt=st.name+", no. "+n;
-    document.getElementById("imgttl").textContent=st.name+", no. "+n;document.getElementById("imgcount").textContent=n+" of "+st.count;
+    document.getElementById("imgttl").textContent=st.name+", no. "+n;askBox("askimg",st.name+", no. "+n);document.getElementById("imgcount").textContent=n+" of "+st.count;
     document.getElementById("imgprev").href="#/image/"+st.slug+"/"+(n>1?n-1:st.count);document.getElementById("imgnext").href="#/image/"+st.slug+"/"+(n<st.count?n+1:1);}
   document.addEventListener("keydown",function(e){if(!document.querySelector('section[data-page="image"].active'))return;if(e.key=="ArrowLeft")location.hash=document.getElementById("imgprev").getAttribute("href");if(e.key=="ArrowRight")location.hash=document.getElementById("imgnext").getAttribute("href");});
   // NEW PRINTS: series list > one series (6 per page) > single print with size dropdown
@@ -289,7 +299,7 @@
       h+='</div></div>';});
     document.getElementById("vpdecnav").innerHTML=nav;document.getElementById("vplist").innerHTML=h;}
   function fillVintage(n){var v=VINTAGE[n-1],N=VINTAGE.length;var dl=document.getElementById("vodec");dl.textContent=v.decade;dl.href="#/prints/vintage";
-    var im=document.getElementById("voimg");im.src=v.img;im.alt=v.title;document.getElementById("votitle").textContent=v.title;
+    var im=document.getElementById("voimg");im.src=v.img;im.alt=v.title;document.getElementById("votitle").textContent=v.title;askBox("askvo","Vintage Prints: "+v.title);
     document.getElementById("voby").innerHTML="Guennadi Maslov &middot; vintage print &middot; created "+v.year;document.getElementById("vodesc").textContent=v.desc;
     document.getElementById("voprice").textContent=vprice(v);document.getElementById("vomsg").textContent="";document.getElementById("vocount").textContent="Print "+n+" of "+N;
     document.getElementById("voprev").href="#/prints/vintage/"+(n>1?n-1:N);document.getElementById("vonext").href="#/prints/vintage/"+(n<N?n+1:1);}
@@ -311,7 +321,7 @@
     document.getElementById("npby").innerHTML=vin?"Guennadi Maslov &middot; vintage print":"Guennadi Maslov &middot; archival pigment print &middot; made to order";
     document.getElementById("npfine").textContent=vin?"Size and price to be added.":"Price includes the print only; shipping is added at checkout.";
     var im=document.getElementById("npimg");im.src=full(st,n);im.alt=st.name+" "+n;
-    document.getElementById("npname").textContent=st.name+" "+n;document.getElementById("npcount").textContent="Image "+n+" of "+st.count;
+    document.getElementById("npname").textContent=st.name+" "+n;askBox("asknp","New Prints: "+st.name+" "+n);document.getElementById("npcount").textContent="Image "+n+" of "+st.count;
     document.getElementById("npprev").href=base+"/"+(n>1?n-1:st.count);document.getElementById("npnext").href=base+"/"+(n<st.count?n+1:1);
     SIZES=PRICES[st.slug]||[];var sel=document.getElementById("npsize"),o='<option value="">Choose a size&hellip;</option>';SIZES.forEach(function(z,i){o+='<option value="'+i+'">'+z[0]+' &middot; $'+z[1]+'</option>';});sel.innerHTML=o;
     document.getElementById("npsize").value="";document.getElementById("npprice").textContent="";document.getElementById("npbuy").disabled=!vin;document.getElementById("npmsg").textContent="";}
