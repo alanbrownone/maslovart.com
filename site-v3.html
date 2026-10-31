@@ -71,9 +71,9 @@
   .decnav{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 26px;} .decnav a{border:1px solid #d6d6d2;border-radius:20px;padding:6px 14px;font-size:14px;color:#333;text-decoration:none;background:#fff;} .decnav a:hover{border-color:var(--teal2);color:var(--teal2);}
   .npgrid.wide{grid-template-columns:repeat(2,1fr);} .grid.wide{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}
   @media(max-width:820px){.vgrid{grid-template-columns:repeat(2,1fr);gap:22px 16px;} .npgrid.wide{grid-template-columns:1fr;}}
-  .askg{margin-top:22px;padding:16px 18px;background:#fff;border:1px solid #e3e3e0;border-radius:10px;text-align:left;} .askg h3{margin:0 0 4px;font-size:16px;} .askg p{margin:0 0 12px;font-size:14px;line-height:1.55;color:#555;} .askg .btns{display:flex;gap:8px;flex-wrap:wrap;} .askg a{flex:1;min-width:92px;text-align:center;border:1px solid var(--teal2);border-radius:6px;padding:9px 10px;font-size:14px;font-weight:600;color:var(--teal);text-decoration:none;} .askg a.em{background:var(--teal2);color:#fff;} .askg a:hover{filter:brightness(1.05);box-shadow:0 2px 8px rgba(0,0,0,.08);} .askg .ph{font-size:13px;color:#888;margin-top:10px;}
+  .askg{margin-top:26px;padding-top:12px;border-top:1px solid rgba(0,0,0,.08);font-size:13.5px;line-height:1.6;color:#666;} .askg a{color:#555;text-decoration:underline;text-decoration-color:rgba(0,0,0,.25);text-underline-offset:2px;} .askg a:hover{color:var(--teal2);text-decoration-color:currentColor;} .one .askg{text-align:center;}
   .crumbs{font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:#555;margin:0 0 22px;} .crumbs a{color:var(--teal2);text-decoration:none;} .crumbs a:hover{text-decoration:underline;} .crumbs .sep{margin:0 8px;color:#888;}
-  .backrow{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px;} .backrow a{border:1px solid #d6d6d2;background:#fff;border-radius:6px;padding:7px 12px;font-size:13.5px;color:#333;text-decoration:none;} .backrow a:hover{border-color:var(--teal2);color:var(--teal2);}
+  .backrow{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px;} .backrow a{border:1px solid #d6d6d2;background:transparent;border-radius:6px;padding:6px 12px;font-size:14px;color:#333;text-decoration:none;} .backrow a:hover{border-color:var(--teal2);color:var(--teal2);}
   .grid .card .num{margin-top:7px;font-size:14px;font-weight:600;color:#333;}
   .one .fixedsize{font-size:16px;margin:4px 0 6px;} .one .msg{font-size:14px;color:var(--teal);margin-top:12px;min-height:20px;} .one .fine{font-size:12.5px;color:#999;margin-top:6px;}
   .one .pager{justify-content:center;}
@@ -148,7 +148,7 @@
       <p style="color:#666;margin:2px 0 6px">Guennadi Maslov</p>
       <p style="color:#999;margin:0 0 6px;font-size:14px" id="imgcount"></p>
       <div class="pnav"><a id="imgprev" href="#">&larr; Previous</a><a id="imgnext" href="#">Next &rarr;</a></div>
-      <div class="backrow"><a id="imgbackser" href="#">&#8617; Back to series</a><a href="#/portfolio">&#9776; All series</a></div>
+      <div class="backrow"><a href="#/portfolio">&#9776; All series</a><a id="imgbackser" href="#">&#8617; Back to series</a></div>
       <p class="pill">Available as a print &rarr;</p>
       
       <div class="askg" id="askimg"></div></div></div>
@@ -186,7 +186,7 @@
     <p class="fine" id="npfine"></p>
     <div class="askg" id="asknp"></div>
     <div class="pager" style="justify-content:center"><a id="npprev" href="#">&larr; Previous</a><span id="npcount"></span><a id="npnext" href="#">Next &rarr;</a></div>
-    <div class="backrow" style="justify-content:center"><a id="npbackser" href="#">&#8617; Back to series</a><a id="npall" href="#/prints/new">&#9776; Back to all Prints series</a></div>
+    <div class="backrow" style="justify-content:center"><a id="npall" href="#/prints/new">&#9776; Back to all Prints series</a><a id="npbackser" href="#">&#8617; Back to series</a></div>
   </div></div>
   <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
 </section>
@@ -274,9 +274,7 @@
   var GPHONE="513-319-3033", GEMAIL="guennadi@maslovart.com";
   function askBox(id,section,what,fields){var link="https://maslov-art-homepage.netlify.app/site-v3.html"+location.hash,subj="Question about "+what+" ("+section+")",
     body="Hello Guennadi,\n\nI have a question / special request about this photo:\n\nSection: "+section+"\n"+fields.map(function(f){return f[0]+": "+f[1];}).join("\n")+"\nLink: "+link+"\n\nMy question or request:\n\n\nMy name:\nMy phone (optional):\n",tel=GPHONE.replace(/\D/g,"");
-    document.getElementById(id).innerHTML='<h3>Questions or a special request?</h3><p>Want a different size, framing advice, or a print you don&rsquo;t see here? Guennadi is happy to help &mdash; just get in touch.</p>'+
-      '<div class="btns"><a class="em" href="mailto:'+GEMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)+'">Email</a><a href="tel:+1'+tel+'">Call</a><a href="sms:+1'+tel+'">Text</a></div>'+
-      '<div class="ph">'+GPHONE+' &middot; '+GEMAIL+'</div>';}
+    document.getElementById(id).innerHTML='Questions or a special request? Guennadi is happy to help: <a href="mailto:'+GEMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)+'">email</a> &middot; <a href="tel:+1'+tel+'">call</a> &middot; <a href="sms:+1'+tel+'">text</a> '+GPHONE;}
   function fillImg(st,n){var k=document.getElementById("imgkick");k.textContent=st.name;k.href="#/portfolio/"+st.slug;
     var lb=imgLabel(st,n);document.getElementById("imgbig").src=full(st,n);document.getElementById("imgbig").alt=st.name+", "+lb;
     document.getElementById("imgttl").textContent=st.name+" \u2014 "+lb;document.getElementById("imgcrumb").textContent=lb;
