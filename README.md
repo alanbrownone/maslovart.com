@@ -3,7 +3,7 @@
 Temporary preview of Guennadi Maslov's new website, showing the look and feel.
 It is plain HTML with no build step, so Netlify can publish this folder as-is.
 
-- `index.html` is the landing page, with a picture tile for each of the four previews.
+- `index.html` is the landing page. It links only to Version 3 (desktop and mobile); the Version 1 and 2 files are kept as a fallback but no longer linked.
 - Version 1 (the original, kept unchanged as a fallback):
   `site.html` is the site itself, `desktop.html` shows it full-width,
   `mobile.html` shows it inside a phone-sized frame.

@@ -261,13 +261,14 @@
     var g="";for(var n=1;n<=st.count;n++)g+='<a class="card" href="#/image/'+st.slug+'/'+n+'"><div class="ph sq" style="'+ratioStyle(st)+'background-image:url('+th(st,n)+')"></div></a>';var cg=document.getElementById("catgrid");cg.innerHTML=g;cg.classList.toggle("wide",RATIO[st.slug]=="3/1");}
   // "Ask Guennadi" box: call, text or email (prefilled with the photo's name)
   var GPHONE="513-319-3033", GEMAIL="guennadi@maslovart.com";
-  function askBox(id,what){var subj="Question about "+what,body="Hello Guennadi,\n\nI have a question / special request about \""+what+"\":\n\n\n\nMy name:\nMy phone (optional):\n",tel=GPHONE.replace(/\D/g,"");
+  function askBox(id,section,what,fields){var link="https://maslov-art-homepage.netlify.app/site-v3.html"+location.hash,subj="Question about "+what+" ("+section+")",
+    body="Hello Guennadi,\n\nI have a question / special request about this photo:\n\nSection: "+section+"\n"+fields.map(function(f){return f[0]+": "+f[1];}).join("\n")+"\nLink: "+link+"\n\nMy question or request:\n\n\nMy name:\nMy phone (optional):\n",tel=GPHONE.replace(/\D/g,"");
     document.getElementById(id).innerHTML='<h3>Questions or a special request?</h3><p>Want a different size, framing advice, or a print you don&rsquo;t see here? Guennadi is happy to help &mdash; just get in touch.</p>'+
       '<div class="btns"><a class="em" href="mailto:'+GEMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)+'">Email</a><a href="tel:+1'+tel+'">Call</a><a href="sms:+1'+tel+'">Text</a></div>'+
       '<div class="ph">'+GPHONE+' &middot; '+GEMAIL+'</div>';}
   function fillImg(st,n){var k=document.getElementById("imgkick");k.textContent=st.name;k.href="#/portfolio/"+st.slug;
     document.getElementById("imgbig").src=full(st,n);document.getElementById("imgbig").alt=st.name+", no. "+n;
-    document.getElementById("imgttl").textContent=st.name+", no. "+n;askBox("askimg",st.name+", no. "+n);document.getElementById("imgcount").textContent=n+" of "+st.count;
+    document.getElementById("imgttl").textContent=st.name+", no. "+n;askBox("askimg","Portfolio",st.name+", image "+n,[["Series",st.name],["Image",n+" of "+st.count]]);document.getElementById("imgcount").textContent=n+" of "+st.count;
     document.getElementById("imgprev").href="#/image/"+st.slug+"/"+(n>1?n-1:st.count);document.getElementById("imgnext").href="#/image/"+st.slug+"/"+(n<st.count?n+1:1);}
   document.addEventListener("keydown",function(e){if(!document.querySelector('section[data-page="image"].active'))return;if(e.key=="ArrowLeft")location.hash=document.getElementById("imgprev").getAttribute("href");if(e.key=="ArrowRight")location.hash=document.getElementById("imgnext").getAttribute("href");});
   // NEW PRINTS: series list > one series (6 per page) > single print with size dropdown
@@ -299,7 +300,7 @@
       h+='</div></div>';});
     document.getElementById("vpdecnav").innerHTML=nav;document.getElementById("vplist").innerHTML=h;}
   function fillVintage(n){var v=VINTAGE[n-1],N=VINTAGE.length;var dl=document.getElementById("vodec");dl.textContent=v.decade;dl.href="#/prints/vintage";
-    var im=document.getElementById("voimg");im.src=v.img;im.alt=v.title;document.getElementById("votitle").textContent=v.title;askBox("askvo","Vintage Prints: "+v.title);
+    var im=document.getElementById("voimg");im.src=v.img;im.alt=v.title;document.getElementById("votitle").textContent=v.title;askBox("askvo","Vintage Prints",v.title+", "+v.decade,[["Print",v.title],["Decade",v.decade],["Image",n+" of "+N]]);
     document.getElementById("voby").innerHTML="Guennadi Maslov &middot; vintage print &middot; created "+v.year;document.getElementById("vodesc").textContent=v.desc;
     document.getElementById("voprice").textContent=vprice(v);document.getElementById("vomsg").textContent="";document.getElementById("vocount").textContent="Print "+n+" of "+N;
     document.getElementById("voprev").href="#/prints/vintage/"+(n>1?n-1:N);document.getElementById("vonext").href="#/prints/vintage/"+(n<N?n+1:1);}
@@ -321,7 +322,7 @@
     document.getElementById("npby").innerHTML=vin?"Guennadi Maslov &middot; vintage print":"Guennadi Maslov &middot; archival pigment print &middot; made to order";
     document.getElementById("npfine").textContent=vin?"Size and price to be added.":"Price includes the print only; shipping is added at checkout.";
     var im=document.getElementById("npimg");im.src=full(st,n);im.alt=st.name+" "+n;
-    document.getElementById("npname").textContent=st.name+" "+n;askBox("asknp","New Prints: "+st.name+" "+n);document.getElementById("npcount").textContent="Image "+n+" of "+st.count;
+    document.getElementById("npname").textContent=st.name+" "+n;askBox("asknp","New Prints",st.name+", image "+n,[["Series",st.name],["Image",n+" of "+st.count]]);document.getElementById("npcount").textContent="Image "+n+" of "+st.count;
     document.getElementById("npprev").href=base+"/"+(n>1?n-1:st.count);document.getElementById("npnext").href=base+"/"+(n<st.count?n+1:1);
     SIZES=PRICES[st.slug]||[];var sel=document.getElementById("npsize"),o='<option value="">Choose a size&hellip;</option>';SIZES.forEach(function(z,i){o+='<option value="'+i+'">'+z[0]+' &middot; $'+z[1]+'</option>';});sel.innerHTML=o;
     document.getElementById("npsize").value="";document.getElementById("npprice").textContent="";document.getElementById("npbuy").disabled=!vin;document.getElementById("npmsg").textContent="";}
