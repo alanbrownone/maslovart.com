@@ -66,6 +66,11 @@
   .one h2{font-size:20px;font-weight:500;margin:16px 0 4px;} .one .by{color:#777;font-size:14px;margin:0 0 18px;}
   .one select{width:100%;max-width:320px;padding:11px 12px;font-size:15px;border:1px solid #bdbdb8;border-radius:6px;background:#fff;font-family:inherit;}
   .one .price{font-size:20px;font-weight:600;margin:14px 0 4px;min-height:26px;} .one .buy{width:100%;max-width:320px;margin-top:8px;} .one .buy:disabled{background:#b9c9c5;cursor:not-allowed;}
+  .vdec{margin:34px 0 0;} .vdec h2{font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal2);margin:0 0 16px;font-weight:700;} .vdec:first-of-type{margin-top:0;}
+  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 24px;} .vgrid .card .ph{aspect-ratio:1/1;border:1px solid #d9d9d5;} .vcap{margin-top:9px;font-size:14px;line-height:1.45;color:#444;} .vcap b{display:block;font-size:15px;color:#1d1d1b;} .vcap .vp{font-weight:600;color:#1d1d1b;margin-top:2px;}
+  .decnav{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 26px;} .decnav a{border:1px solid #d6d6d2;border-radius:20px;padding:6px 14px;font-size:14px;color:#333;text-decoration:none;background:#fff;} .decnav a:hover{border-color:var(--teal2);color:var(--teal2);}
+  .npgrid.wide{grid-template-columns:repeat(2,1fr);} .grid.wide{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}
+  @media(max-width:820px){.vgrid{grid-template-columns:repeat(2,1fr);gap:22px 16px;} .npgrid.wide{grid-template-columns:1fr;}}
   .one .fixedsize{font-size:16px;margin:4px 0 6px;} .one .msg{font-size:14px;color:var(--teal);margin-top:12px;min-height:20px;} .one .fine{font-size:12.5px;color:#999;margin-top:6px;}
   .one .pager{justify-content:center;}
   .npkick a{color:var(--teal2);text-decoration:none;}
@@ -177,9 +182,25 @@
 
 <section data-page="vintageprints" class="pg"><div class="np"><div>
   <h1 class="nph">Vintage Prints</h1>
-  <p class="nplede">One-of-a-kind and limited-edition original prints, each individually priced.</p>
-  <p class="note">Placeholder photos for now &mdash; the vintage prints themselves will be added later.</p>
-  <div class="npgrid" id="vpsets"></div></div>
+  <p class="nplede">One-of-a-kind original prints, each with the year it was made, a short description and its price.</p>
+  <p class="note">Placeholder photos and text for now &mdash; Guennadi will add the real vintage prints.</p>
+  <div class="decnav" id="vpdecnav"></div>
+  <div id="vplist"></div></div>
+  <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
+</section>
+
+<section data-page="vintageone" class="pg"><div class="np"><div>
+  <p class="kick npkick"><a href="#/prints/vintage">Vintage Prints</a> &nbsp;&rsaquo;&nbsp; <a id="vodec" href="#/prints/vintage"></a></p>
+  <div class="one">
+    <div class="frame"><img id="voimg" alt=""></div>
+    <h2 id="votitle"></h2>
+    <p class="by" id="voby"></p>
+    <p id="vodesc" style="font-size:15px;line-height:1.6;color:#444;margin:0 0 10px"></p>
+    <div class="price" id="voprice"></div>
+    <button class="buy" id="vobuy" type="button">Purchase</button>
+    <div class="msg" id="vomsg"></div>
+    <div class="pager"><a id="voprev" href="#">&larr; Previous</a><span id="vocount"></span><a id="vonext" href="#">Next &rarr;</a></div>
+  </div></div>
   <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
 </section>
 
@@ -223,7 +244,7 @@
   <div class="fl"><a href="#/">Shipping Info</a><a href="#/">Terms &amp; Conditions</a><a href="#/contact">Contact</a></div>
   <div class="cp">All images &copy; Guennadi Maslov &middot; All rights reserved</div></div></footer>
 <script>
-  var SETS=[{"slug": "ukrainian-time", "dir": "v2/ukrainian-time", "name": "Ukrainian Time", "count": 22, "intro": ["The flow of time is frivolous in Ukraine. Though Tuesdays usually follow Mondays like everywhere else, but the logic of how the time current is perceived and entangled with the people’s souls and minds, makes me speak about UKRAINIAN TIME.", "History and circumstance have made Eastern Europe a colossal testing ground for human endurance and endeavor. This ground is inhabited by my heroes, whom I see sometimes as proud and earnest, and sometimes as eccentric and confused.", "Life never stops for the 40 million energetic, resourceful and lyrical people who call themselves Ukrainians. Looking into the nation’s character, the one hundred photographs in this book endeavor to trace lives and emotions of ordinary people, to illustrate the inner struggle and beauty of individuals living through a most dramatic time in their country’s history."], "by": ""}, {"slug": "annotations", "name": "Annotations", "count": 31, "intro": ["The series is based on the simple fact that one image is often not enough to express a complex idea.", "Multiple photo illustrations appeared in American and European magazines in the late 1920’s. The success of this approach led to the Golden Age of magazine photojournalism in the 1950-1970’s when pages and pages of documentary photographs were sparsely illustrated with short textual notes.", "Maslov’s work, however, belongs to a completely different realm of combined imaging. His Annotations are more psychological insight than document. Deeply rooted in reality they are strangely enigmatic.", "The artist is obviously concerned with social themes and the mysteries of growing up. Political undertones can be discovered in some of the images. But these themes are neither dominant, nor critical. The smaller image in each pair is noticed and examined just a second after the mental absorption of the larger one. In most cases this footnote photo redirects the first impression considerably, enhancing it with an important layer, forming a new unity. And in that I see the Annotations’ strength and beauty."], "by": "Claude Paar"}, {"slug": "this-land-is-my-land", "name": "This Land is My Land", "count": 39, "intro": ["Panoramic photography is a technique of photography, using specialized equipment or software, which captures images with horizontally elongated fields of view. (Wikipedia, 2026)", "There is something melancholic, something reflective in the panorama. It leads you, your imagination and wonder. But it does not want you too close, it prefers to stay aloof. The panorama is full of beautiful information. This information appears strangely complete and whilst quietly enigmatic."], "by": ""}, {"slug": "from-ukraine-war", "name": "From Ukraine War: With and Without Love", "count": 22, "intro": ["Steppe: a large, flat area of land with grass and very few trees especially in Eastern Europe and Asia. (Merriam-Webster Learner’s Dictionary, 2026)", "The scars of human activity defy the dictionary description. For centuries people have dug into the steppe’s belly extracting coal and ore. For centuries the slagheaps have been growing nearby. The war came seven years ago with its mine-craters and shell-holes. Hiding from the metal flying around, the people covered the area with trenches and dug-outs. No mercy to each other, no mercy to the “flat area with grass”.", "But the steppe will survive. Like it did after the hurricane of WW2 that scorched this land in the 1940s. Will the people survive? They hide from each other’s shots, (while seeking targets for shots of their own); more metal flies. More than 500,000 Russians and Ukrainians have died in this war. Most of them are buried here, in the steppe. Many were put to rest where they had come from: hundreds of villages and towns in Ukraine and Russia. The steppe is silent, the steppe keeps low profile…"], "by": ""}, {"slug": "stealing-time", "name": "Stealing Time", "count": 23, "intro": ["What happens to the moment that just zoomed by my temple a second ago? Where does it go after ruffling my senses and counting my next heartbeat? The camera in my hands is a moment hunting weapon. It is a tool of beauty and love. It absorbs the illusive instant and locks it in the pixel cage of illusion – the illusion of immortality and possession.", "A scrooge, I feed the seized slice of existence into my computer. This moment is mine and mine only. I save it and name it; I prepare it for the ritual of digital mummification. I am a proud proprietor of salvaged moments…"], "by": ""}, {"slug": "soul-time", "name": "Soul Time", "count": 19, "intro": ["There is something absorbing and enigmatic about the dim journey over your own soul and memory that takes place at night. Did you ever try to write down your dreams? I photograph them instead. The best time is right before dawn. I know all the stories behind these foggy images. Some people say they can see echoes of their own experience in these ephemeral visual cocktails. Real events often creep into them, as well as some historical figures. I do not try to keep them out. Actually, I have come to enjoy their company!"], "by": ""}];
+  var SETS=[{"slug": "ukrainian-time", "dir": "v2/ukrainian-time", "name": "Ukrainian Time", "count": 22, "intro": ["The flow of time is frivolous in Ukraine. Though Tuesdays usually follow Mondays like everywhere else, but the logic of how the time current is perceived and entangled with the people’s souls and minds, makes me speak about UKRAINIAN TIME.", "History and circumstance have made Eastern Europe a colossal testing ground for human endurance and endeavor. This ground is inhabited by my heroes, whom I see sometimes as proud and earnest, and sometimes as eccentric and confused.", "Life never stops for the 40 million energetic, resourceful and lyrical people who call themselves Ukrainians. Looking into the nation’s character, the one hundred photographs in this book endeavor to trace lives and emotions of ordinary people, to illustrate the inner struggle and beauty of individuals living through a most dramatic time in their country’s history."], "by": ""}, {"slug": "annotations", "name": "Annotations", "count": 31, "intro": ["The series is based on the simple fact that one image is often not enough to express a complex idea.", "Multiple photo illustrations appeared in American and European magazines in the late 1920’s. The success of this approach led to the Golden Age of magazine photojournalism in the 1950-1970’s when pages and pages of documentary photographs were sparsely illustrated with short textual notes.", "Maslov’s work, however, belongs to a completely different realm of combined imaging. His Annotations are more psychological insight than document. Deeply rooted in reality they are strangely enigmatic.", "The artist is obviously concerned with social themes and the mysteries of growing up. Political undertones can be discovered in some of the images. But these themes are neither dominant, nor critical. The smaller image in each pair is noticed and examined just a second after the mental absorption of the larger one. In most cases this footnote photo redirects the first impression considerably, enhancing it with an important layer, forming a new unity. And in that I see the Annotations’ strength and beauty."], "by": "Claude Paar"}, {"slug": "this-land-is-my-land", "dir": "v2/this-land-is-my-land", "name": "This Land is My Land", "count": 39, "intro": ["Panoramic photography is a technique of photography, using specialized equipment or software, which captures images with horizontally elongated fields of view. (Wikipedia, 2026)", "There is something melancholic, something reflective in the panorama. It leads you, your imagination and wonder. But it does not want you too close, it prefers to stay aloof. The panorama is full of beautiful information. This information appears strangely complete and whilst quietly enigmatic."], "by": ""}, {"slug": "from-ukraine-war", "name": "From Ukraine War: With and Without Love", "count": 22, "intro": ["Steppe: a large, flat area of land with grass and very few trees especially in Eastern Europe and Asia. (Merriam-Webster Learner’s Dictionary, 2026)", "The scars of human activity defy the dictionary description. For centuries people have dug into the steppe’s belly extracting coal and ore. For centuries the slagheaps have been growing nearby. The war came seven years ago with its mine-craters and shell-holes. Hiding from the metal flying around, the people covered the area with trenches and dug-outs. No mercy to each other, no mercy to the “flat area with grass”.", "But the steppe will survive. Like it did after the hurricane of WW2 that scorched this land in the 1940s. Will the people survive? They hide from each other’s shots, (while seeking targets for shots of their own); more metal flies. More than 500,000 Russians and Ukrainians have died in this war. Most of them are buried here, in the steppe. Many were put to rest where they had come from: hundreds of villages and towns in Ukraine and Russia. The steppe is silent, the steppe keeps low profile…"], "by": ""}, {"slug": "stealing-time", "dir": "v2/stealing-time", "name": "Stealing Time", "count": 23, "intro": ["What happens to the moment that just zoomed by my temple a second ago? Where does it go after ruffling my senses and counting my next heartbeat? The camera in my hands is a moment hunting weapon. It is a tool of beauty and love. It absorbs the illusive instant and locks it in the pixel cage of illusion – the illusion of immortality and possession.", "A scrooge, I feed the seized slice of existence into my computer. This moment is mine and mine only. I save it and name it; I prepare it for the ritual of digital mummification. I am a proud proprietor of salvaged moments…"], "by": ""}, {"slug": "soul-time", "name": "Soul Time", "count": 19, "intro": ["There is something absorbing and enigmatic about the dim journey over your own soul and memory that takes place at night. Did you ever try to write down your dreams? I photograph them instead. The best time is right before dawn. I know all the stories behind these foggy images. Some people say they can see echoes of their own experience in these ephemeral visual cocktails. Real events often creep into them, as well as some historical figures. I do not try to keep them out. Actually, I have come to enjoy their company!"], "by": ""}];
   function pad(n){return (n<10?"0":"")+n;}
   function dir(st){return "images/"+(st.dir||st.slug)+"/";}
   function th(st,n){return dir(st)+"thumbs/"+pad(n)+".jpg";}
@@ -231,14 +252,17 @@
   (function(){var g=document.getElementById("setgrid"),h="";SETS.forEach(function(st){h+='<a class="card" href="#/portfolio/'+st.slug+'"><div class="ph sq" style="background-image:url('+th(st,1)+')"></div><div class="cap">'+st.name+'</div><div style="font-size:13px;color:#999">'+st.count+' photographs</div></a>';});g.innerHTML=h;})();
   function fillCat(st){document.getElementById("catkick").textContent=st.name;document.getElementById("catttl").textContent=st.name;
     var h="";st.intro.forEach(function(p){h+="<p>"+p+"</p>";});if(st.by)h+='<p class="by">&mdash; '+st.by+'</p>';document.getElementById("catintro").innerHTML=h;
-    var g="";for(var n=1;n<=st.count;n++)g+='<a class="card" href="#/image/'+st.slug+'/'+n+'"><div class="ph sq" style="background-image:url('+th(st,n)+')"></div></a>';document.getElementById("catgrid").innerHTML=g;}
+    var g="";for(var n=1;n<=st.count;n++)g+='<a class="card" href="#/image/'+st.slug+'/'+n+'"><div class="ph sq" style="'+ratioStyle(st)+'background-image:url('+th(st,n)+')"></div></a>';var cg=document.getElementById("catgrid");cg.innerHTML=g;cg.classList.toggle("wide",RATIO[st.slug]=="3/1");}
   function fillImg(st,n){var k=document.getElementById("imgkick");k.textContent=st.name;k.href="#/portfolio/"+st.slug;
     document.getElementById("imgbig").src=full(st,n);document.getElementById("imgbig").alt=st.name+", no. "+n;
     document.getElementById("imgttl").textContent=st.name+", no. "+n;document.getElementById("imgcount").textContent=n+" of "+st.count;
     document.getElementById("imgprev").href="#/image/"+st.slug+"/"+(n>1?n-1:st.count);document.getElementById("imgnext").href="#/image/"+st.slug+"/"+(n<st.count?n+1:1);}
   document.addEventListener("keydown",function(e){if(!document.querySelector('section[data-page="image"].active'))return;if(e.key=="ArrowLeft")location.hash=document.getElementById("imgprev").getAttribute("href");if(e.key=="ArrowRight")location.hash=document.getElementById("imgnext").getAttribute("href");});
   // NEW PRINTS: series list > one series (6 per page) > single print with size dropdown
-  var SIZES=[["Size option 1"],["Size option 2"],["Size option 3"],["Size option 4"],["Size option 5"]], PER=6;
+  var SQ=[["10 x 10 in",110],["14 x 14 in",140],["16 x 16 in",160],["20 x 20 in",200]], PANO=[["5 x 14 in",140],["6 x 18 in",190],["8 x 24 in",220],["10 x 30 in",280]];
+  var PRICES={"ukrainian-time":SQ,"annotations":[["11 x 14 in",120],["14 x 16 in",140],["16 x 20 in",180]],"this-land-is-my-land":PANO,"from-ukraine-war":PANO,"stealing-time":[["9 x 14 in",140],["10 x 16 in",160],["12 x 20 in",220]],"soul-time":SQ};
+  var RATIO={"this-land-is-my-land":"3/1","stealing-time":"5/4"}, SIZES=[], PER=6;
+  function ratioStyle(st){return RATIO[st.slug]?"aspect-ratio:"+RATIO[st.slug]+";":"";}
   var KINDS={"new":{name:"New Prints",path:"#/prints/new"},"vintage":{name:"Vintage Prints",path:"#/prints/vintage"}};
   function full(st,n){return dir(st)+pad(n)+".jpg";}
   (function(){var hb=document.querySelectorAll('.hbtn img');
@@ -246,19 +270,34 @@
     document.querySelectorAll('.npb-vin').forEach(function(i){i.src=hb[1].src;});
     var h="";SETS.forEach(function(st){h+='<a class="card" href="#/prints/new/'+st.slug+'"><div class="ph" style="background-image:url('+th(st,1)+')"></div><div class="cap">'+st.name+'</div></a>';});
     document.getElementById("npsets").innerHTML=h;
-    document.getElementById("vpsets").innerHTML=h.split("#/prints/new/").join("#/prints/vintage/");
-    var o="";SIZES.forEach(function(z,i){o+='<option value="'+i+'">'+z[0]+' &middot; to be added</option>';});
-    var sel=document.getElementById("npsize");sel.insertAdjacentHTML("beforeend",o);
+    var sel=document.getElementById("npsize");
     sel.addEventListener("change",function(){var z=SIZES[sel.value];document.getElementById("npmsg").textContent="";
-      document.getElementById("npprice").textContent=z?"Price to be added":"";document.getElementById("npbuy").disabled=!z;});
+      document.getElementById("npprice").textContent=z?"$"+z[1]:"";document.getElementById("npbuy").disabled=!z;});
     document.getElementById("npbuy").addEventListener("click",function(){var z=SIZES[sel.value],vin=document.getElementById("npvinsize").style.display!="none";if(!z&&!vin)return;
       document.getElementById("npmsg").textContent="Added "+(vin?"vintage print":z[0]+" print")+" to your cart. (Preview only: checkout comes later.)";});
   })();
+  // VINTAGE PRINTS: single prints grouped by decade (placeholders until Guennadi adds the real ones)
+  var DECADES=["1970s","1980s","1990s","2000s"], VINTAGE=[];
+  DECADES.forEach(function(d,di){for(var k=1;k<=3;k++){VINTAGE.push({decade:d,img:"images/soul-time/"+pad(di*3+k)+".jpg",thumb:"images/soul-time/thumbs/"+pad(di*3+k)+".jpg",
+    title:"Vintage print "+(VINTAGE.length+1),year:d.slice(0,3)+"&hellip;",desc:"Short description to be added.",price:""});}});
+  function vprice(v){return v.price?"$"+v.price:"Price to be added";}
+  function fillVintageList(){var nav="",h="";DECADES.forEach(function(d){nav+='<a href="#vd-'+d+'" onclick="document.getElementById(\'vd-'+d+'\').scrollIntoView({behavior:\'smooth\'});return false;">'+d+'</a>';
+      h+='<div class="vdec" id="vd-'+d+'"><h2>'+d+'</h2><div class="vgrid">';
+      VINTAGE.forEach(function(v,i){if(v.decade!=d)return;h+='<a class="card" href="#/prints/vintage/'+(i+1)+'"><div class="ph" style="background-image:url('+v.thumb+')"></div><div class="vcap"><b>'+v.title+'</b>Created '+v.year+'<br>'+v.desc+'<div class="vp">'+vprice(v)+'</div></div></a>';});
+      h+='</div></div>';});
+    document.getElementById("vpdecnav").innerHTML=nav;document.getElementById("vplist").innerHTML=h;}
+  function fillVintage(n){var v=VINTAGE[n-1],N=VINTAGE.length;var dl=document.getElementById("vodec");dl.textContent=v.decade;dl.href="#/prints/vintage";
+    var im=document.getElementById("voimg");im.src=v.img;im.alt=v.title;document.getElementById("votitle").textContent=v.title;
+    document.getElementById("voby").innerHTML="Guennadi Maslov &middot; vintage print &middot; created "+v.year;document.getElementById("vodesc").textContent=v.desc;
+    document.getElementById("voprice").textContent=vprice(v);document.getElementById("vomsg").textContent="";document.getElementById("vocount").textContent="Print "+n+" of "+N;
+    document.getElementById("voprev").href="#/prints/vintage/"+(n>1?n-1:N);document.getElementById("vonext").href="#/prints/vintage/"+(n<N?n+1:1);}
+  fillVintageList();
+  document.getElementById("vobuy").addEventListener("click",function(){document.getElementById("vomsg").textContent="Added to your cart. (Preview only: checkout comes later.)";});
   function fillSeries(st,p,kd){kd=kd||"new";var K=KINDS[kd],base=K.path+"/"+st.slug;var pages=Math.ceil(st.count/PER);p=Math.min(Math.max(p,1),pages);
     var kk=document.getElementById("nskick");kk.textContent=K.name;kk.href=K.path;
     document.getElementById("nsttl").textContent=K.name+": "+st.name;
-    var g="";for(var n=(p-1)*PER+1;n<=Math.min(p*PER,st.count);n++)g+='<a class="card" href="'+base+'/'+n+'"><div class="ph" style="background-image:url('+th(st,n)+')"></div><div class="cap">'+st.name+' '+n+'</div></a>';
-    document.getElementById("nsgrid").innerHTML=g;document.getElementById("nspage").textContent="Page "+p+" of "+pages;
+    var g="";for(var n=(p-1)*PER+1;n<=Math.min(p*PER,st.count);n++)g+='<a class="card" href="'+base+'/'+n+'"><div class="ph" style="'+ratioStyle(st)+'background-image:url('+th(st,n)+')"></div><div class="cap">'+st.name+' '+n+'</div></a>';
+    var ng=document.getElementById("nsgrid");ng.innerHTML=g;ng.classList.toggle("wide",RATIO[st.slug]=="3/1");document.getElementById("nspage").textContent="Page "+p+" of "+pages;
     var pv=document.getElementById("nsprev"),nx=document.getElementById("nsnext");
     pv.href=base+"/page/"+(p-1);pv.classList.toggle("off",p<=1);
     nx.href=base+"/page/"+(p+1);nx.classList.toggle("off",p>=pages);}
@@ -268,13 +307,14 @@
     document.getElementById("npttl").textContent=K.name+": "+st.name;
     document.getElementById("npnewsize").style.display=vin?"none":"";document.getElementById("npvinsize").style.display=vin?"":"none";
     document.getElementById("npby").innerHTML=vin?"Guennadi Maslov &middot; vintage print":"Guennadi Maslov &middot; archival pigment print &middot; made to order";
-    document.getElementById("npfine").textContent=vin?"Size and price to be added.":"Sizes and prices to be added.";
+    document.getElementById("npfine").textContent=vin?"Size and price to be added.":"Price includes the print only; shipping is added at checkout.";
     var im=document.getElementById("npimg");im.src=full(st,n);im.alt=st.name+" "+n;
     document.getElementById("npname").textContent=st.name+" "+n;document.getElementById("npcount").textContent="Image "+n+" of "+st.count;
     document.getElementById("npprev").href=base+"/"+(n>1?n-1:st.count);document.getElementById("npnext").href=base+"/"+(n<st.count?n+1:1);
+    SIZES=PRICES[st.slug]||[];var sel=document.getElementById("npsize"),o='<option value="">Choose a size&hellip;</option>';SIZES.forEach(function(z,i){o+='<option value="'+i+'">'+z[0]+' &middot; $'+z[1]+'</option>';});sel.innerHTML=o;
     document.getElementById("npsize").value="";document.getElementById("npprice").textContent="";document.getElementById("npbuy").disabled=!vin;document.getElementById("npmsg").textContent="";}
   var routes={"":"home","#/":"home","#/artist":"artist","#/portfolio":"portfolio","#/prints":"newprints","#/prints/new":"newprints","#/prints/vintage":"vintageprints","#/blog":"blog","#/blogpost":"blogpost","#/contact":"contact"};
-  var navmap={artist:0,portfolio:1,category:1,image:1,vintageprints:2,newprints:2,newseries:2,newprint:2,blog:3,blogpost:3,contact:4};
+  var navmap={artist:0,portfolio:1,category:1,image:1,vintageprints:2,vintageone:2,newprints:2,newseries:2,newprint:2,blog:3,blogpost:3,contact:4};
   function show(pg){
     document.querySelectorAll('section[data-page]').forEach(function(s){s.classList.toggle('active',s.dataset.page==pg);});
     var links=document.querySelectorAll('nav.main a'); links.forEach(function(l){l.classList.remove('active');});
@@ -283,7 +323,7 @@
     window.scrollTo(0,0);
   }
   function route(){var nv=document.getElementById("nav"); if(nv) nv.classList.remove("open"); var h=location.hash||"#/";var pg=routes[h];
-    if(!pg){ var m; if((m=h.match(/^#\/prints\/(new|vintage)\/([^\/]+)(?:\/page\/(\d+))?$/))&&findSet(m[2])){fillSeries(findSet(m[2]),+(m[3]||1),m[1]);pg="newseries";} else if((m=h.match(/^#\/prints\/(new|vintage)\/([^\/]+)\/(\d+)$/))&&findSet(m[2])){var s2=findSet(m[2]);fillPrint(s2,Math.min(Math.max(+m[3],1),s2.count),m[1]);pg="newprint";} else if((m=h.match(/^#\/portfolio\/([^\/]+)$/))&&findSet(m[1])){fillCat(findSet(m[1]));pg="category";} else if((m=h.match(/^#\/image\/([^\/]+)\/(\d+)$/))&&findSet(m[1])){var st=findSet(m[1]),n=Math.min(Math.max(+m[2],1),st.count);fillImg(st,n);pg="image";} else pg="home"; }
+    if(!pg){ var m; if((m=h.match(/^#\/prints\/vintage\/(\d+)$/))&&+m[1]>=1&&+m[1]<=VINTAGE.length){fillVintage(+m[1]);pg="vintageone";} else if((m=h.match(/^#\/prints\/(new)\/([^\/]+)(?:\/page\/(\d+))?$/))&&findSet(m[2])){fillSeries(findSet(m[2]),+(m[3]||1),m[1]);pg="newseries";} else if((m=h.match(/^#\/prints\/(new)\/([^\/]+)\/(\d+)$/))&&findSet(m[2])){var s2=findSet(m[2]);fillPrint(s2,Math.min(Math.max(+m[3],1),s2.count),m[1]);pg="newprint";} else if((m=h.match(/^#\/portfolio\/([^\/]+)$/))&&findSet(m[1])){fillCat(findSet(m[1]));pg="category";} else if((m=h.match(/^#\/image\/([^\/]+)\/(\d+)$/))&&findSet(m[1])){var st=findSet(m[1]),n=Math.min(Math.max(+m[2],1),st.count);fillImg(st,n);pg="image";} else pg="home"; }
     show(pg);}
   window.addEventListener('hashchange',route);route();
 </script></body></html>
