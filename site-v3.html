@@ -165,7 +165,8 @@
   <p class="crumbs"><a id="nskick" href="#/prints/new">New Prints</a><span class="sep">&rsaquo;</span><span id="nscrumb"></span></p>
   <h1 class="nph" id="nsttl"></h1>
   <div class="npgrid" id="nsgrid"></div>
-  <div class="pager"><a id="nsprev" href="#">&larr; Previous</a><span id="nspage"></span><a id="nsnext" href="#">Next &rarr;</a></div></div>
+  <div class="pager"><a id="nsprev" href="#">&larr; Previous</a><span id="nspage"></span><a id="nsnext" href="#">Next &rarr;</a></div>
+  <div class="backrow"><a id="nsall" href="#/prints/new">&#9776; Back to all Prints series</a></div></div>
   <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
 </section>
 
@@ -185,7 +186,7 @@
     <p class="fine" id="npfine"></p>
     <div class="askg" id="asknp"></div>
     <div class="pager" style="justify-content:center"><a id="npprev" href="#">&larr; Previous</a><span id="npcount"></span><a id="npnext" href="#">Next &rarr;</a></div>
-    <div class="backrow" style="justify-content:center"><a id="npbackser" href="#">&#8617; Back to series</a><a href="#/prints/new">&#9776; All New Prints series</a></div>
+    <div class="backrow" style="justify-content:center"><a id="npbackser" href="#">&#8617; Back to series</a><a id="npall" href="#/prints/new">&#9776; Back to all Prints series</a></div>
   </div></div>
   <aside class="npside"><a href="#/prints/new"><img class="npb-new" alt="New Prints"></a><a href="#/prints/vintage"><img class="npb-vin" alt="Vintage Prints"></a></aside></div>
 </section>
@@ -319,7 +320,7 @@
   fillVintageList();
   document.getElementById("vobuy").addEventListener("click",function(){document.getElementById("vomsg").textContent="Added to your cart. (Preview only: checkout comes later.)";});
   function fillSeries(st,p,kd){kd=kd||"new";var K=KINDS[kd],base=K.path+"/"+st.slug;var pages=Math.ceil(st.count/PER);p=Math.min(Math.max(p,1),pages);
-    var kk=document.getElementById("nskick");kk.textContent=K.name;kk.href=K.path;
+    var kk=document.getElementById("nskick");kk.textContent=K.name;kk.href=K.path;document.getElementById("nsall").href=K.path;
     document.getElementById("nsttl").textContent=K.name+": "+st.name;document.getElementById("nscrumb").textContent=st.name;
     var g="";for(var n=(p-1)*PER+1;n<=Math.min(p*PER,st.count);n++)g+='<a class="card" href="'+base+'/'+n+'"><div class="ph" style="'+ratioStyle(st)+'background-image:url('+th(st,n)+')"></div><div class="cap">'+imgLabel(st,n)+'</div></a>';
     var ng=document.getElementById("nsgrid");ng.innerHTML=g;ng.classList.toggle("wide",RATIO[st.slug]=="3/1");document.getElementById("nspage").textContent="Page "+p+" of "+pages;
@@ -327,7 +328,7 @@
     pv.href=base+"/page/"+(p-1);pv.classList.toggle("off",p<=1);
     nx.href=base+"/page/"+(p+1);nx.classList.toggle("off",p>=pages);}
   function fillPrint(st,n,kd){kd=kd||"new";var K=KINDS[kd],base=K.path+"/"+st.slug,vin=kd=="vintage";
-    var kk=document.getElementById("npkind");kk.textContent=K.name;kk.href=K.path;
+    var kk=document.getElementById("npkind");kk.textContent=K.name;kk.href=K.path;document.getElementById("npall").href=K.path;
     var b=document.getElementById("npback");b.textContent=st.name;b.href=base+"/page/"+Math.ceil(n/PER);
     document.getElementById("npttl").textContent=K.name+": "+st.name;
     document.getElementById("npnewsize").style.display=vin?"none":"";document.getElementById("npvinsize").style.display=vin?"":"none";
