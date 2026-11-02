@@ -263,7 +263,7 @@
   <p>If your print arrives damaged, it will be replaced at no cost. Please <a href="#/contact">contact Guennadi</a> within 7 days of delivery and include a photo of the print and the packaging.</p>
   <p>Custom orders &mdash; special sizes or papers &mdash; are final and can&rsquo;t be returned.</p>
   <h2 id="tc-prints">About the prints</h2>
-  <p>New prints are archival pigment prints on archival paper, signed by the artist.</p>
+  <p>New prints are archival pigment prints (a.k.a. giclée prints) on archival paper, signed by the artist.</p>
   <p>Vintage prints are one-of-a-kind original prints made by the artist at the time shown with each print.</p>
   <p>Looking for a different size? <a href="#/contact">Send Guennadi a request</a>.</p>
   <h2 id="tc-privacy">Privacy</h2>
@@ -310,12 +310,12 @@
   function fillImgPrice(st,n){var el=document.getElementById("imgprice"),z=PRICES[st.slug]||[];
     if(!printable(st,n)||!z.length){el.innerHTML="";el.style.display="none";return;}
     var h='<div class="pfh">Available as a print</div><ul>';z.forEach(function(r){h+='<li><span>'+r[0]+'</span><b>$'+r[1]+'</b></li>';});
-    el.innerHTML=h+'</ul><a class="buy pfbuy" href="#/prints/new/'+st.slug+'/'+n+'">Order this print &rarr;</a><p class="pffine">Archival pigment print, made to order. Shipping is added at checkout.</p>';el.style.display="";}
+    el.innerHTML=h+'</ul><a class="buy pfbuy" href="#/prints/new/'+st.slug+'/'+n+'">Order this print &rarr;</a><p class="pffine">Archival pigment print (a.k.a. giclée print), made to order. Shipping is added at checkout.</p>';el.style.display="";}
   // "Ask Guennadi" box: call, text or email (prefilled with the photo's name)
   var GPHONE="513-319-3033", GEMAIL="guennadi@maslovart.com";
   function askBox(id,section,what,fields){var link="https://maslov-art-homepage.netlify.app/site-v3.html"+location.hash,subj="Question about "+what+" ("+section+")",
     body="Hello Guennadi,\n\nI have a question / special request about this photo:\n\nSection: "+section+"\n"+fields.map(function(f){return f[0]+": "+f[1];}).join("\n")+"\nLink: "+link+"\n\nMy question or request:\n\n\nMy name:\nMy phone (optional):\n",tel=GPHONE.replace(/\D/g,"");
-    document.getElementById(id).innerHTML='Questions or a special request? Guennadi is happy to help: <a href="mailto:'+GEMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)+'">email</a> &middot; <a href="tel:+1'+tel+'">call</a> &middot; <a href="sms:+1'+tel+'">text</a> '+GPHONE;}
+    document.getElementById(id).innerHTML='Questions or a special request? We are happy to help: <a href="mailto:'+GEMAIL+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)+'">email</a> &middot; <a href="tel:+1'+tel+'">call</a> &middot; <a href="sms:+1'+tel+'">text</a> '+GPHONE;}
   function fillImg(st,n){var k=document.getElementById("imgkick");k.textContent=st.name;k.href="#/portfolio/"+st.slug;
     var lb=imgLabel(st,n);document.getElementById("imgbig").src=full(st,n);document.getElementById("imgbig").alt=st.name+", "+lb;
     document.getElementById("imgttl").textContent=st.name+" \u2014 "+lb;document.getElementById("imgcrumb").textContent=lb;
@@ -376,7 +376,7 @@
     var L=printNums(st),k=L.indexOf(n)+1,pg=Math.ceil(k/PER);var b=document.getElementById("npback");b.textContent=st.name;b.href=base+"/page/"+pg;
     document.getElementById("npttl").textContent=K.name+": "+st.name;
     document.getElementById("npnewsize").style.display=vin?"none":"";document.getElementById("npvinsize").style.display=vin?"":"none";
-    document.getElementById("npby").innerHTML=vin?"Guennadi Maslov &middot; vintage print":"Guennadi Maslov &middot; archival pigment print &middot; made to order";
+    document.getElementById("npby").innerHTML=vin?"Guennadi Maslov &middot; vintage print":"Guennadi Maslov &middot; archival pigment/giclée print &middot; made to order";
     document.getElementById("npfine").textContent=vin?"Size and price to be added.":"Price includes the print only; shipping is added at checkout.";
     var lb=imgLabel(st,n),im=document.getElementById("npimg");im.src=full(st,n);im.alt=st.name+", "+lb;
     document.getElementById("npname").textContent=st.name+" \u2014 "+lb;document.getElementById("npcrumb").textContent=lb;
