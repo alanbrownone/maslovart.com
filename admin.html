@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Maslov Art Admin</title>
+<style>
+  :root{--teal:#1b8a7a;--teal2:#1b9e8f;--ink:#1d1d1b;--line:#e2e2dc;--soft:#f6f6f3;--red:#b3261e;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--soft);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  a{color:var(--teal);}
+  header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;}
+  .bar{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .brand{font:600 19px Georgia,"Times New Roman",serif;margin-right:auto;}
+  .brand small{font:500 12px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--teal2);margin-left:8px;}
+  .who{font-size:13px;color:#666;}
+  button,.btn{font-family:inherit;font-size:14px;font-weight:600;line-height:1.4;border-radius:8px;border:1px solid #cfcfc8;background:#fff;color:var(--ink);padding:8px 14px;cursor:pointer;text-decoration:none;display:inline-block;}
+  button.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+  button.primary:disabled{background:#9fc9c2;border-color:#9fc9c2;cursor:default;}
+  button.link{border:none;background:none;color:var(--teal);padding:4px 0;font-weight:500;}
+  button.x{border:none;background:none;color:#999;font-size:18px;padding:2px 8px;}
+  button.x:hover{color:var(--red);}
+  main{max-width:1100px;margin:0 auto;padding:24px 20px 120px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:18px;}
+  .card h3{margin:0 0 12px;font:600 18px Georgia,"Times New Roman",serif;}
+  .narrow{max-width:420px;margin:60px auto;}
+  label{display:block;font-size:13px;font-weight:600;color:#555;margin:12px 0 4px;}
+  input[type=text],input[type=email],input[type=password],input[type=number],input[type=tel],textarea,select{width:100%;font:inherit;padding:8px 10px;border:1px solid #cfcfc8;border-radius:8px;background:#fff;}
+  textarea{min-height:120px;resize:vertical;line-height:1.55;}
+  .hint{font-size:12.5px;color:#777;margin:4px 0 0;}
+  .msg{margin-top:12px;font-size:14px;}
+  .msg.err{color:var(--red);} .msg.ok{color:var(--teal);}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+  .tabs button{border-radius:20px;font-weight:500;}
+  .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .intro{color:#555;margin:0 0 18px;max-width:760px;}
+  .prow{display:grid;grid-template-columns:1fr 130px 40px;gap:8px;align-items:center;margin-bottom:6px;}
+  .prow .dollar{position:relative;} .prow .dollar span{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;}
+  .prow .dollar input{padding-left:22px;}
+  .phead{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+  .ph{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;}
+  .ph.np{background:#fbf3f2;border-color:#ecc9c5;}
+  .ph img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;display:block;background:#eee;}
+  .ph .n{font-size:12px;font-weight:600;color:#888;margin:6px 0 4px;}
+  .ph input[type=text]{font-size:13px;padding:6px 8px;}
+  .ph .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:#555;margin-top:6px;font-weight:500;}
+  .savebar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,0,0,.06);z-index:10;}
+  .savebar .in{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .savebar .state{margin-right:auto;font-size:14px;color:#666;}
+  .savebar .state.dirty{color:#a35d00;font-weight:600;}
+  table.hist{width:100%;border-collapse:collapse;font-size:14px;}
+  table.hist td,table.hist th{text-align:left;padding:8px;border-bottom:1px solid var(--line);}
+  .hidden{display:none !important;}
+  @media (max-width:600px){.prow{grid-template-columns:1fr 100px 34px;} main{padding:16px 16px 140px;} .bar{padding:10px 16px;}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="brand">Maslov Art<small>Site admin</small></div>
+  <span class="who hidden" id="who"></span>
+  <a class="btn" href="site-v3.html" target="_blank" rel="noopener">View site</a>
+  <button id="signout" class="hidden">Sign out</button>
+</div></header>
+
+<main>
+  <!-- Sign in -->
+  <div id="v-login" class="card narrow hidden">
+    <h3>Sign in</h3>
+    <form id="f-login">
+      <label for="l-email">Email</label><input type="email" id="l-email" autocomplete="username" required>
+      <label for="l-pass">Password</label><input type="password" id="l-pass" autocomplete="current-password" required>
+      <div style="margin-top:16px;display:flex;gap:14px;align-items:center"><button class="primary" type="submit">Sign in</button>
+        <button class="link" type="button" id="forgot">Forgot password?</button></div>
+      <div class="msg" id="m-login"></div>
+    </form>
+  </div>
+
+  <!-- Choose a new password (after clicking the emailed link) -->
+  <div id="v-recover" class="card narrow hidden">
+    <h3>Choose a new password</h3>
+    <form id="f-recover">
+      <label for="r-pass">New password (at least 8 characters)</label><input type="password" id="r-pass" autocomplete="new-password" minlength="8" required>
+      <label for="r-pass2">Type it again</label><input type="password" id="r-pass2" autocomplete="new-password" minlength="8" required>
+      <div style="margin-top:16px"><button class="primary" type="submit">Save new password</button></div>
+      <div class="msg" id="m-recover"></div>
+    </form>
+  </div>
+
+  <!-- Signed in but not on the admin list -->
+  <div id="v-denied" class="card narrow hidden">
+    <h3>No access</h3>
+    <p>This login isn't on the list of people who can edit the site. Ask Alan to add your email.</p>
+  </div>
+
+  <div id="v-loading" class="card narrow"><p>Loading&hellip;</p></div>
+
+  <!-- The editor -->
+  <div id="v-app" class="hidden">
+    <div class="tabs" id="tabs"></div>
+
+    <section data-tab="prices">
+      <p class="intro">Print sizes and prices for each series. They show on the New Prints pages and under each Portfolio photo. Leave a row empty to remove it.</p>
+      <div id="t-prices"></div>
+    </section>
+
+    <section data-tab="series">
+      <p class="intro">The name and introduction for each series. Leave a blank line between paragraphs. To make words bold, put two stars on each side, like **this**.</p>
+      <div id="t-series"></div>
+    </section>
+
+    <section data-tab="photos">
+      <p class="intro">Give a photo a title (optional), or mark it "Not for sale" to hide prices and ordering for it, as for the exhibit collages. Without a title, a photo shows only its number.</p>
+      <div class="card"><label for="ph-series" style="margin-top:0">Series</label><select id="ph-series"></select>
+        <label class="chk" style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="ph-numtitle"> Show the number with the title (e.g. "No. 3 &middot; The Ribbon")</label></div>
+      <div class="grid" id="t-photos"></div>
+    </section>
+
+    <section data-tab="bio">
+      <p class="intro">Text on The Artist page. Leave a blank line between paragraphs. To make words bold, put two stars on each side, like **this**.</p>
+      <div class="card">
+        <label for="b-lede" style="margin-top:0">Short introduction (under his name)</label><textarea id="b-lede" style="min-height:70px"></textarea>
+        <label for="b-statement">Artist Statement</label><textarea id="b-statement" style="min-height:180px"></textarea>
+        <label for="b-biography">Biography</label><textarea id="b-biography" style="min-height:180px"></textarea>
+        <p class="hint">The achievements list, venue logos and portrait will be editable in the next update.</p>
+      </div>
+    </section>
+
+    <section data-tab="contact">
+      <p class="intro">Used on the Contact page and in the "Questions or a special request?" links under each photo.</p>
+      <div class="card">
+        <label for="c-phone" style="margin-top:0">Phone</label><input type="tel" id="c-phone">
+        <label for="c-email">Email</label><input type="email" id="c-email">
+      </div>
+    </section>
+
+    <section data-tab="history">
+      <p class="intro">Every time you save, the version before it is kept here. To go back, click "Bring back", look it over, then press Save.</p>
+      <div class="card"><table class="hist"><thead><tr><th>Saved</th><th>By</th><th></th></tr></thead><tbody id="t-history"></tbody></table>
+        <p class="hint" id="h-empty">Nothing saved yet.</p></div>
+    </section>
+  </div>
+</main>
+
+<div class="savebar hidden" id="savebar"><div class="in">
+  <span class="state" id="state">All changes saved.</span>
+  <span class="msg" id="m-save" style="margin:0"></span>
+  <button class="primary" id="save" disabled>Save changes</button>
+</div></div>
+
+<!-- The site itself, loaded without saved changes, so we know its built-in starting values -->
+<iframe id="sitefrm" title="site" style="position:absolute;width:1px;height:1px;left:-9999px;border:0" aria-hidden="true" tabindex="-1"></iframe>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+  var SUPA_URL="https://umuzvxsnbnunnsfnjuim.supabase.co",
+      SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtdXp2eHNuYm51bm5zZm5qdWltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwMTg5MjksImV4cCI6MjEwOTU5NDkyOX0.dyjH8hFdmgtAt3_bnOPs3EfIAG-cbq_ZN7LOVWRTGj4";
+  var sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+  var $=function(id){return document.getElementById(id);};
+  var VIEWS=["v-login","v-recover","v-denied","v-loading","v-app"];
+  function view(v){VIEWS.forEach(function(x){$(x).classList.toggle("hidden",x!=v);});$("savebar").classList.toggle("hidden",v!="v-app");}
+  function el(tag,attrs,kids){var e=document.createElement(tag);for(var k in attrs||{}){if(k=="text")e.textContent=attrs[k];else if(k.slice(0,2)=="on")e.addEventListener(k.slice(2),attrs[k]);else if(k in e&&k!="list")e[k]=attrs[k];else e.setAttribute(k,attrs[k]);}
+    (kids||[]).forEach(function(c){if(c)e.appendChild(c);});return e;}
+  function clone(x){return JSON.parse(JSON.stringify(x));}
+  function toParas(t){return String(t||"").split(/\n\s*\n/).map(function(s){return s.trim();}).filter(Boolean);}
+  function fromParas(a){return (a||[]).join("\n\n");}
+  // HTML from the page -> text with **bold**
+  function htmlToText(html){var d=document.createElement("div");d.innerHTML=String(html).replace(/<\/?(b|strong)>/gi,"**");return d.textContent.replace(/\s+/g," ").trim();}
+
+  var DEFAULTS=null, doc=null, SETS=[], dirty=false, recovering=false, userEmail="";
+
+  // ---------- starting values come from the site itself ----------
+  function loadDefaults(){return new Promise(function(res,rej){var f=$("sitefrm"),done=false;
+    f.onload=function(){try{var w=f.contentWindow,d=w.document;
+      SETS=w.SETS.map(function(s){return {slug:s.slug,name:s.name,count:s.count,dir:s.dir||s.slug};});
+      var series={},prices={},titles={},noprint={};
+      w.SETS.forEach(function(s){series[s.slug]={name:s.name,intro:s.intro.map(htmlToText),by:s.by||""};
+        prices[s.slug]=clone(w.PRICES[s.slug]||[]);titles[s.slug]=clone(w.TITLES[s.slug]||{});noprint[s.slug]=clone(w.NOPRINT[s.slug]||[]);});
+      var ps=function(sel){return Array.prototype.map.call(d.querySelectorAll(sel),function(p){return htmlToText(p.innerHTML);});};
+      DEFAULTS={series:series,prices:prices,titles:titles,noprint:noprint,numberWithTitle:!!w.NUMBER_WITH_TITLE,
+        contact:{phone:w.GPHONE,email:w.GEMAIL},
+        bio:{lede:d.getElementById("artlede").textContent.trim(),statement:ps("#st p"),biography:ps("#bio p")}};
+      done=true;res();}catch(e){rej(e);}};
+    setTimeout(function(){if(!done)rej(new Error("The site page did not load."));},20000);
+    f.src="site-v3.html?nocms";});}
+
+  // Saved values are laid over the starting values
+  function merge(saved){var d=clone(DEFAULTS);saved=saved||{};
+    ["series","prices","titles","noprint"].forEach(function(k){if(saved[k])Object.keys(saved[k]).forEach(function(s){if(d[k].hasOwnProperty(s))d[k][s]=clone(saved[k][s]);});});
+    if(saved.contact)Object.assign(d.contact,saved.contact);
+    if(saved.bio)Object.assign(d.bio,saved.bio);
+    if(typeof saved.numberWithTitle=="boolean")d.numberWithTitle=saved.numberWithTitle;
+    return d;}
+
+  function setDirty(v){dirty=v;var s=$("state");s.textContent=v?"You have unsaved changes.":"All changes saved.";s.classList.toggle("dirty",v);$("save").disabled=!v;if(v)$("m-save").textContent="";}
+  window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
+
+  // ---------- tabs ----------
+  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photo titles"],["bio","The Artist"],["contact","Contact"],["history","Earlier versions"]];
+  function showTab(t){document.querySelectorAll("#v-app section").forEach(function(s){s.classList.toggle("hidden",s.dataset.tab!=t);});
+    document.querySelectorAll("#tabs button").forEach(function(b){b.classList.toggle("on",b.dataset.t==t);});
+    if(t=="history")loadHistory();try{sessionStorage.setItem("admintab",t);}catch(e){}}
+  TABS.forEach(function(t){$("tabs").appendChild(el("button",{type:"button","data-t":t[0],text:t[1],onclick:function(){showTab(t[0]);}}));});
+
+  // ---------- Prices ----------
+  function drawPrices(){var box=$("t-prices");box.innerHTML="";
+    SETS.forEach(function(s){var rows=doc.prices[s.slug],list=el("div");
+      function draw(){list.innerHTML="";list.appendChild(el("div",{className:"prow"},[el("span",{className:"phead",text:"Size"}),el("span",{className:"phead",text:"Price"}),null]));
+        rows.forEach(function(r,i){list.appendChild(el("div",{className:"prow"},[
+          el("input",{type:"text",value:r[0],placeholder:"e.g. 16 x 16 in","aria-label":s.name+" size "+(i+1),oninput:function(e){r[0]=e.target.value;setDirty(true);}}),
+          el("div",{className:"dollar"},[el("span",{text:"$"}),el("input",{type:"number",min:"0",step:"1",value:r[1],"aria-label":s.name+" price "+(i+1),oninput:function(e){r[1]=e.target.value===""?"":+e.target.value;setDirty(true);}})]),
+          el("button",{type:"button",className:"x",title:"Remove this size",text:"✕",onclick:function(){rows.splice(i,1);setDirty(true);draw();}})]));});}
+      draw();
+      box.appendChild(el("div",{className:"card"},[el("h3",{text:s.name}),list,
+        el("button",{type:"button",className:"link",text:"+ Add a size",onclick:function(){rows.push(["",""]);setDirty(true);draw();list.querySelector(".prow:last-child input").focus();}})]));});}
+
+  // ---------- Series text ----------
+  function drawSeries(){var box=$("t-series");box.innerHTML="";
+    SETS.forEach(function(s){var o=doc.series[s.slug];
+      box.appendChild(el("div",{className:"card"},[el("h3",{text:o.name||s.name}),
+        el("label",{text:"Series name"}),el("input",{type:"text",value:o.name,oninput:function(e){o.name=e.target.value;setDirty(true);}}),
+        el("label",{text:"Introduction"}),el("textarea",{value:fromParas(o.intro),style:"min-height:200px",oninput:function(e){o.intro=toParas(e.target.value);setDirty(true);}}),
+        el("label",{text:"Written by (optional)"}),el("input",{type:"text",value:o.by||"",placeholder:"Leave empty if Guennadi wrote it",oninput:function(e){o.by=e.target.value;setDirty(true);}})]));});}
+
+  // ---------- Photo titles ----------
+  function pad(n){return (n<10?"0":"")+n;}
+  function drawPhotos(){var slug=$("ph-series").value,s=SETS.filter(function(x){return x.slug==slug;})[0],box=$("t-photos");box.innerHTML="";if(!s)return;
+    var titles=doc.titles[slug]||(doc.titles[slug]={}),np=doc.noprint[slug]||(doc.noprint[slug]=[]);
+    for(var n=1;n<=s.count;n++)(function(n){var card=el("div",{className:"ph"+(np.indexOf(n)>=0?" np":"")});
+      var cb=el("input",{type:"checkbox",checked:np.indexOf(n)>=0,onchange:function(e){var i=np.indexOf(n);if(e.target.checked&&i<0)np.push(n);if(!e.target.checked&&i>=0)np.splice(i,1);np.sort(function(a,b){return a-b;});card.classList.toggle("np",e.target.checked);setDirty(true);}});
+      [el("img",{src:"images/"+s.dir+"/thumbs/"+pad(n)+".jpg",alt:"",loading:"lazy"}),el("div",{className:"n",text:"No. "+n}),
+       el("input",{type:"text",value:titles[n]||"",placeholder:"Title (optional)","aria-label":"Title for No. "+n,oninput:function(e){if(e.target.value.trim())titles[n]=e.target.value;else delete titles[n];setDirty(true);}}),
+       el("label",{className:"chk"},[cb,document.createTextNode("Not for sale")])].forEach(function(k){card.appendChild(k);});
+      box.appendChild(card);})(n);}
+  $("ph-series").addEventListener("change",drawPhotos);
+  $("ph-numtitle").addEventListener("change",function(e){doc.numberWithTitle=e.target.checked;setDirty(true);});
+
+  // ---------- The Artist + Contact ----------
+  function bindText(id,get,set){var e=$(id);e.value=get();e.oninput=function(){set(e.value);setDirty(true);};}
+  function drawSimple(){
+    bindText("b-lede",function(){return doc.bio.lede;},function(v){doc.bio.lede=v.trim();});
+    bindText("b-statement",function(){return fromParas(doc.bio.statement);},function(v){doc.bio.statement=toParas(v);});
+    bindText("b-biography",function(){return fromParas(doc.bio.biography);},function(v){doc.bio.biography=toParas(v);});
+    bindText("c-phone",function(){return doc.contact.phone;},function(v){doc.contact.phone=v.trim();});
+    bindText("c-email",function(){return doc.contact.email;},function(v){doc.contact.email=v.trim();});
+    $("ph-numtitle").checked=doc.numberWithTitle;}
+
+  function drawAll(){drawPrices();drawSeries();drawPhotos();drawSimple();}
+
+  // ---------- Save ----------
+  function cleaned(){var d=clone(doc),problems=[];
+    SETS.forEach(function(s){d.prices[s.slug]=(d.prices[s.slug]||[]).filter(function(r){return String(r[0]).trim()||r[1]!=="";}).map(function(r){
+        if(!String(r[0]).trim()||!(+r[1]>0))problems.push(s.name+": every size needs both a size and a price.");return [String(r[0]).trim(),+r[1]];});
+      if(!String(d.series[s.slug].name||"").trim())problems.push("Every series needs a name.");});
+    if(!/^\S+@\S+\.\S+$/.test(d.contact.email))problems.push("The contact email doesn't look right.");
+    return {doc:d,problems:problems.filter(function(p,i,a){return a.indexOf(p)==i;})};}
+  $("save").addEventListener("click",function(){var c=cleaned(),m=$("m-save");
+    if(c.problems.length){m.className="msg err";m.textContent=c.problems.join(" ");return;}
+    $("save").disabled=true;m.className="msg";m.textContent="Saving…";
+    sb.from("site_content").upsert({key:"site",value:c.doc}).then(function(r){
+      if(r.error){m.className="msg err";m.textContent="Couldn't save: "+r.error.message;$("save").disabled=false;return;}
+      doc=c.doc;setDirty(false);m.className="msg ok";m.textContent="Saved. The site shows your changes now.";drawPrices();});});
+
+  // ---------- Earlier versions ----------
+  function loadHistory(){var tb=$("t-history");tb.innerHTML="<tr><td colspan=3>Loading…</td></tr>";
+    sb.from("site_content_history").select("id,saved_at,saved_by,value").eq("key","site").order("id",{ascending:false}).limit(30).then(function(r){tb.innerHTML="";
+      var rows=(r.data||[]).filter(function(x){return x.value&&Object.keys(x.value).length;});$("h-empty").classList.toggle("hidden",rows.length>0);
+      rows.forEach(function(x){tb.appendChild(el("tr",{},[el("td",{text:new Date(x.saved_at).toLocaleString()}),el("td",{text:x.saved_by||""}),
+        el("td",{},[el("button",{type:"button",text:"Bring back",onclick:function(){if(dirty&&!confirm("This replaces your unsaved changes. Continue?"))return;
+          doc=merge(x.value);drawAll();setDirty(true);showTab("prices");$("m-save").className="msg";$("m-save").textContent="Earlier version loaded. Look it over, then press Save to put it on the site.";}})])]));});});}
+
+  // ---------- Sign in / out ----------
+  $("f-login").addEventListener("submit",function(e){e.preventDefault();var m=$("m-login");m.className="msg";m.textContent="Signing in…";
+    sb.auth.signInWithPassword({email:$("l-email").value.trim(),password:$("l-pass").value}).then(function(r){
+      if(r.error){m.className="msg err";m.textContent="That email and password don't match.";return;}m.textContent="";enter(r.data.session);});});
+  $("forgot").addEventListener("click",function(){var em=$("l-email").value.trim(),m=$("m-login");
+    if(!em){m.className="msg err";m.textContent="Type your email above first, then click \"Forgot password?\" again.";return;}
+    sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname}).then(function(r){
+      m.className="msg "+(r.error?"err":"ok");m.textContent=r.error?"Couldn't send the email: "+r.error.message:"If that email can sign in, a link to choose a new password is on its way.";});});
+  $("f-recover").addEventListener("submit",function(e){e.preventDefault();var m=$("m-recover"),p=$("r-pass").value;
+    if(p!=$("r-pass2").value){m.className="msg err";m.textContent="The two passwords don't match.";return;}
+    sb.auth.updateUser({password:p}).then(function(r){if(r.error){m.className="msg err";m.textContent=r.error.message;return;}
+      recovering=false;sb.auth.getSession().then(function(s){enter(s.data.session);});});});
+  $("signout").addEventListener("click",function(){if(dirty&&!confirm("You have unsaved changes. Sign out anyway?"))return;setDirty(false);sb.auth.signOut().then(function(){location.reload();});});
+
+  function enter(session){if(!session){view("v-login");return;}
+    userEmail=session.user.email;$("who").textContent=userEmail;$("who").classList.remove("hidden");$("signout").classList.remove("hidden");view("v-loading");
+    sb.rpc("is_admin").then(function(r){if(r.error||!r.data){view("v-denied");return;}
+      Promise.all([loadDefaults(),sb.from("site_content").select("value").eq("key","site").maybeSingle()]).then(function(a){
+        if(a[1].error)throw a[1].error;
+        doc=merge(a[1].data&&a[1].data.value);
+        var sel=$("ph-series");sel.innerHTML="";SETS.forEach(function(s){sel.appendChild(el("option",{value:s.slug,text:s.name}));});
+        drawAll();setDirty(false);view("v-app");
+        var t="prices";try{t=sessionStorage.getItem("admintab")||t;}catch(e){}showTab(t);
+      }).catch(function(e){view("v-loading");$("v-loading").innerHTML="";$("v-loading").appendChild(el("p",{className:"msg err",text:"Something went wrong loading the editor: "+(e.message||e)}));});});}
+
+  sb.auth.onAuthStateChange(function(ev){if(ev=="PASSWORD_RECOVERY"){recovering=true;view("v-recover");}});
+  sb.auth.getSession().then(function(r){if(recovering||/type=recovery/.test(location.hash))return view("v-recover");enter(r.data.session);});
+})();
+</script>
+</body>
+</html>

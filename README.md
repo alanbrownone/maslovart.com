@@ -20,3 +20,14 @@ These files came from `MaslovArt_WebsiteSpecs.afpub.zip`.
 `images/<set>/NN.jpg` holds Guennadi's photos, copied from the current maslovart.com
 in the same sets and order. `images/<set>/thumbs/` has smaller copies for the grids.
 The list of sets (names, intro text, photo counts) is the `SETS` list near the bottom of `site.html`.
+
+## Admin page
+
+`admin.html` is a private page where Alan and Guennadi sign in and change the site without editing code:
+print sizes and prices, series names and introductions, photo titles, which photos are "not for sale",
+the text on The Artist page, and the contact phone and email. It also keeps every earlier version, so a
+mistake can be undone.
+
+How it works: the changes are saved in Supabase (project "MaslovArt.com Website"), and Version 3
+(`site-v3.html`) lays them over the values written into the page when it loads. If Supabase can't be
+reached, the site simply shows the built-in values. Only emails listed in the `admins` table can save.
