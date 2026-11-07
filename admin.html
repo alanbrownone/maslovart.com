@@ -68,6 +68,14 @@
   .savebar .in{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
   .savebar .state{margin-right:auto;font-size:14px;color:#666;}
   .savebar .state.dirty{color:#a35d00;font-weight:600;}
+  .mrow{border-bottom:1px solid var(--line);padding:10px 4px;}
+  .mrow summary{cursor:pointer;display:flex;gap:12px;flex-wrap:wrap;font-size:14px;list-style:none;}
+  .mrow summary::-webkit-details-marker{display:none;}
+  .mrow.new summary{font-weight:700;}
+  .mrow .mdate{color:#777;margin-left:auto;font-weight:400;}
+  .mrow .mbody{white-space:pre-wrap;margin:10px 0;font-size:15px;line-height:1.5;}
+  .mrow .mmeta{font-size:13px;color:#666;margin-bottom:10px;}
+  .mrow .mbtns{display:flex;gap:8px;flex-wrap:wrap;}
   table.hist{width:100%;border-collapse:collapse;font-size:14px;}
   table.hist td,table.hist th{text-align:left;padding:8px;border-bottom:1px solid var(--line);}
   .hidden{display:none !important;}
@@ -171,6 +179,12 @@
       </div>
     </section>
 
+    <section data-tab="messages">
+      <p class="intro">Messages people send from the Contact form on the site. New ones are in bold. Click a message to open it.</p>
+      <div class="card"><div id="t-messages"></div>
+        <p class="hint" id="m-empty">No messages yet.</p></div>
+    </section>
+
     <section data-tab="history">
       <p class="intro">Every time you save, the version before it is kept here. To go back, click "Bring back", look it over, then press Save.</p>
       <div class="card"><table class="hist"><thead><tr><th>Saved</th><th>By</th><th></th></tr></thead><tbody id="t-history"></tbody></table>
@@ -245,10 +259,10 @@
   window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
 
   // ---------- tabs ----------
-  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["history","Earlier versions"]];
+  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["history","Earlier versions"]];
   function showTab(t){document.querySelectorAll("#v-app section").forEach(function(s){s.classList.toggle("hidden",s.dataset.tab!=t);});
     document.querySelectorAll("#tabs button").forEach(function(b){b.classList.toggle("on",b.dataset.t==t);});
-    if(t=="history")loadHistory();try{sessionStorage.setItem("admintab",t);}catch(e){}}
+    if(t=="history")loadHistory();if(t=="messages")loadMessages();try{sessionStorage.setItem("admintab",t);}catch(e){}}
   TABS.forEach(function(t){$("tabs").appendChild(el("button",{type:"button","data-t":t[0],text:t[1],onclick:function(){showTab(t[0]);}}));});
 
   // ---------- Prices ----------
@@ -380,6 +394,24 @@
       rows.forEach(function(x){tb.appendChild(el("tr",{},[el("td",{text:new Date(x.saved_at).toLocaleString()}),el("td",{text:x.saved_by||""}),
         el("td",{},[el("button",{type:"button",text:"Bring back",onclick:function(){if(dirty&&!confirm("This replaces your unsaved changes. Continue?"))return;
           doc=merge(x.value);drawAll();setDirty(true);showTab("prices");$("m-save").className="msg";$("m-save").textContent="Earlier version loaded. Look it over, then press Save to put it on the site.";}})])]));});});}
+
+  // ---------- Messages ----------
+  function loadMessages(){var box=$("t-messages");box.innerHTML="<p class=hint>Loading…</p>";
+    sb.from("messages").select("id,created_at,name,email,phone,message,page,is_read,email_sent").order("created_at",{ascending:false}).limit(200).then(function(r){box.innerHTML="";
+      if(r.error){box.appendChild(el("p",{className:"msg err",text:"Couldn't load messages: "+r.error.message}));return;}
+      var rows=r.data||[];$("m-empty").classList.toggle("hidden",rows.length>0);
+      rows.forEach(function(x){var d=el("details",{className:"mrow"+(x.is_read?"":" new")});
+        function setRead(v){sb.from("messages").update({is_read:v}).eq("id",x.id).then(function(u){if(u.error)return alert("Couldn't update: "+u.error.message);x.is_read=v;d.classList.toggle("new",!v);rb.textContent=v?"Mark as unread":"Mark as read";});}
+        var rb=el("button",{type:"button",text:x.is_read?"Mark as unread":"Mark as read",onclick:function(){setRead(!x.is_read);}});
+        d.appendChild(el("summary",{},[el("span",{text:x.name||"(no name)"}),el("span",{text:x.email||""}),el("span",{className:"mdate",text:new Date(x.created_at).toLocaleString()})]));
+        d.appendChild(el("div",{className:"mbody",text:x.message||""}));
+        d.appendChild(el("div",{className:"mmeta",text:[x.phone?"Phone: "+x.phone:"",x.page?"Sent from: "+x.page:"",x.email_sent?"Also sent by email.":"Not sent by email."].filter(Boolean).join("  ·  ")}));
+        var btns=[];if(x.email)btns.push(el("a",{className:"btn",href:"mailto:"+encodeURIComponent(x.email).replace(/%40/g,"@")+"?subject="+encodeURIComponent("Re: your message to Guennadi Maslov"),text:"Reply by email"}));
+        btns.push(rb);btns.push(el("button",{type:"button",text:"Delete",onclick:function(){if(!confirm("Delete this message from "+(x.name||"this person")+"? This can't be undone."))return;
+          sb.from("messages").delete().eq("id",x.id).then(function(u){if(u.error)return alert("Couldn't delete: "+u.error.message);d.remove();if(!box.children.length)$("m-empty").classList.remove("hidden");});}}));
+        d.appendChild(el("div",{className:"mbtns"},btns));
+        d.addEventListener("toggle",function(){if(d.open&&!x.is_read)setRead(true);});
+        box.appendChild(d);});});}
 
   // ---------- Sign in / out ----------
   $("f-login").addEventListener("submit",function(e){e.preventDefault();var m=$("m-login");m.className="msg";m.textContent="Signing in…";
