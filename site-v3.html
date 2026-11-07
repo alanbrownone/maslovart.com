@@ -120,7 +120,7 @@
   <div class="artist-top">
     <div class="portrait" style="background-image:url(images/guennadi-portrait-v2.jpg)"></div>
     <div><h1 class="ttl serif">Guennadi Maslov</h1>
-      <p class="lede">Photographer, artist, and educator. Originally from Ukraine, working between Eastern Europe and the United States.</p>
+      <p class="lede" id="artlede">Photographer, artist, and educator. Originally from Ukraine, working between Eastern Europe and the United States.</p>
       <div class="subnav"><span>Statement</span><span>Biography</span><span>Achievements</span></div></div>
   </div>
   <div class="sec statement" id="st"><h2>Artist Statement</h2>
@@ -283,8 +283,8 @@
   <p class="lede" style="margin-bottom:30px">For prints, exhibitions, teaching, or anything else &mdash; I&rsquo;d be glad to hear from you.</p>
   <div class="contactgrid">
     <div class="cinfo">
-      <div><div class="lbl">Name</div>Guennadi Maslov</div><div><div class="lbl">Phone</div>513-319-3033</div>
-      <div><div class="lbl">Email</div><a href="mailto:guennadi@maslovart.com">guennadi@maslovart.com</a></div>
+      <div><div class="lbl">Name</div>Guennadi Maslov</div><div><div class="lbl">Phone</div><span id="cphone">513-319-3033</span></div>
+      <div><div class="lbl">Email</div><a id="cemail" href="mailto:guennadi@maslovart.com">guennadi@maslovart.com</a></div>
       <div><div class="lbl">Website</div>www.maslovart.com</div>
       <div><div class="lbl">Instagram</div>guennadi.maslov</div><div><div class="lbl">Facebook</div>Guennadi Maslov</div></div>
     <div><form class="getintouch"><input placeholder="Your name"><input placeholder="Your email"><input placeholder="Phone (optional)"><textarea placeholder="Your message" rows="5"></textarea><button class="buy" type="button" style="align-self:flex-start">Send message</button></form>
@@ -306,7 +306,8 @@
   function imgTitle(st,n){return (TITLES[st.slug]||{})[n]||"";}
   function imgLabel(st,n){var t=imgTitle(st,n);return t?(NUMBER_WITH_TITLE?"No. "+n+" \u00b7 "+t:t):"No. "+n;}
   function findSet(slug){for(var i=0;i<SETS.length;i++)if(SETS[i].slug==slug)return SETS[i];return null;}
-  (function(){var g=document.getElementById("setgrid"),h="";SETS.forEach(function(st){h+='<a class="card" href="#/portfolio/'+st.slug+'"><div class="ph sq" style="background-image:url('+th(st,1)+')"></div><div class="cap">'+st.name+'</div><div style="font-size:13px;color:#999">'+st.count+' photographs</div></a>';});g.innerHTML=h;})();
+  function drawSets(){var g=document.getElementById("setgrid"),h="";SETS.forEach(function(st){h+='<a class="card" href="#/portfolio/'+st.slug+'"><div class="ph sq" style="background-image:url('+th(st,1)+')"></div><div class="cap">'+st.name+'</div><div style="font-size:13px;color:#999">'+st.count+' photographs</div></a>';});g.innerHTML=h;}
+  drawSets();
   function fillCat(st){document.getElementById("catkick").textContent=st.name;document.getElementById("catttl").textContent=st.name;document.getElementById("catavail").href="#/prints/new/"+st.slug;
     var h="";st.intro.forEach(function(p){h+="<p>"+p+"</p>";});if(st.by)h+='<p class="by">&mdash; '+st.by+'</p>';document.getElementById("catintro").innerHTML=h;
     var g="";for(var n=1;n<=st.count;n++)g+='<a class="card" href="#/image/'+st.slug+'/'+n+'"><div class="ph sq" style="'+cardStyle(st,n)+'background-image:url('+th(st,n)+')"></div><div class="num">'+imgLabel(st,n)+'</div></a>';var cg=document.getElementById("catgrid");cg.innerHTML=g;cg.classList.toggle("wide",RATIO[st.slug]=="3/1");}
@@ -339,11 +340,12 @@
   function cardStyle(st,n){return ratioStyle(st)+(RATIO[st.slug]&&!printable(st,n)?"background-size:contain;background-repeat:no-repeat;background-color:transparent;border-color:transparent;":"");}
   var KINDS={"new":{name:"New Prints",path:"#/prints/new"},"vintage":{name:"Vintage Prints",path:"#/prints/vintage"}};
   function full(st,n){return dir(st)+pad(n)+".jpg";}
+  function drawNpSets(){var h="";SETS.forEach(function(st){h+='<a class="card" href="#/prints/new/'+st.slug+'"><div class="ph" style="background-image:url('+th(st,1)+')"></div><div class="cap">'+st.name+'</div></a>';});
+    document.getElementById("npsets").innerHTML=h;}
   (function(){var hb=document.querySelectorAll('.hbtn img');
     document.querySelectorAll('.npb-new').forEach(function(i){i.src=hb[0].src;});
     document.querySelectorAll('.npb-vin').forEach(function(i){i.src=hb[1].src;});
-    var h="";SETS.forEach(function(st){h+='<a class="card" href="#/prints/new/'+st.slug+'"><div class="ph" style="background-image:url('+th(st,1)+')"></div><div class="cap">'+st.name+'</div></a>';});
-    document.getElementById("npsets").innerHTML=h;
+    drawNpSets();
     var sel=document.getElementById("npsize");
     sel.addEventListener("change",function(){var z=SIZES[sel.value];document.getElementById("npmsg").textContent="";
       document.getElementById("npprice").textContent=z?"$"+z[1]:"";document.getElementById("npbuy").disabled=!z;});
@@ -402,5 +404,32 @@
   function route(){var nv=document.getElementById("nav"); if(nv) nv.classList.remove("open"); var h=location.hash||"#/";var pg=routes[h];
     if(!pg){ var m; if((m=h.match(/^#\/prints\/vintage\/(\d+)$/))&&+m[1]>=1&&+m[1]<=VINTAGE.length){fillVintage(+m[1]);pg="vintageone";} else if((m=h.match(/^#\/prints\/(new)\/([^\/]+)(?:\/page\/(\d+))?$/))&&findSet(m[2])){fillSeries(findSet(m[2]),+(m[3]||1),m[1]);pg="newseries";} else if((m=h.match(/^#\/prints\/(new)\/([^\/]+)\/(\d+)$/))&&findSet(m[2])){var s2=findSet(m[2]),n2=Math.min(Math.max(+m[3],1),s2.count);if(printable(s2,n2)){fillPrint(s2,n2,m[1]);pg="newprint";}else{fillImg(s2,n2);pg="image";}} else if((m=h.match(/^#\/portfolio\/([^\/]+)$/))&&findSet(m[1])){fillCat(findSet(m[1]));pg="category";} else if((m=h.match(/^#\/image\/([^\/]+)\/(\d+)$/))&&findSet(m[1])){var st=findSet(m[1]),n=Math.min(Math.max(+m[2],1),st.count);fillImg(st,n);pg="image";} else pg="home"; }
     show(pg);}
-  window.addEventListener('hashchange',route);route();
+  window.addEventListener('hashchange',route);
+  // EDITABLE CONTENT: changes saved in the admin page (admin.html) are stored in Supabase and
+  // laid over the built-in values above. If Supabase can't be reached, the built-in values are used.
+  var CMS_URL="https://umuzvxsnbnunnsfnjuim.supabase.co/rest/v1/site_content?key=eq.site&select=value",
+      CMS_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtdXp2eHNuYm51bm5zZm5qdWltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwMTg5MjksImV4cCI6MjEwOTU5NDkyOX0.dyjH8hFdmgtAt3_bnOPs3EfIAG-cbq_ZN7LOVWRTGj4";
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function rich(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");}
+  function plain(s){return String(s==null?"":s).replace(/[<>]/g,"");}
+  function paras(a){return (a||[]).filter(function(p){return String(p).trim();});}
+  function applyCMS(c){if(!c||typeof c!="object")return;
+    if(c.series)SETS.forEach(function(st){var o=c.series[st.slug];if(!o)return;
+      if(o.name)st.name=plain(o.name);if(o.intro)st.intro=paras(o.intro).map(rich);if(o.by!=null)st.by=plain(o.by);});
+    if(c.prices)Object.keys(c.prices).forEach(function(k){var z=(c.prices[k]||[]).filter(function(r){return r&&String(r[0]).trim()&&+r[1]>0;});PRICES[k]=z.map(function(r){return [plain(r[0]),+r[1]];});});
+    if(c.titles){TITLES={};Object.keys(c.titles).forEach(function(k){var t={};Object.keys(c.titles[k]||{}).forEach(function(n){if(String(c.titles[k][n]).trim())t[n]=plain(c.titles[k][n]);});TITLES[k]=t;});}
+    if(typeof c.numberWithTitle=="boolean")NUMBER_WITH_TITLE=c.numberWithTitle;
+    if(c.noprint){NOPRINT={};Object.keys(c.noprint).forEach(function(k){NOPRINT[k]=(c.noprint[k]||[]).map(Number);});}
+    if(c.contact){if(c.contact.phone)GPHONE=plain(c.contact.phone);if(c.contact.email)GEMAIL=plain(c.contact.email);
+      document.getElementById("cphone").textContent=GPHONE;var ce=document.getElementById("cemail");ce.textContent=GEMAIL;ce.href="mailto:"+GEMAIL;}
+    if(c.bio){if(c.bio.lede)document.getElementById("artlede").textContent=c.bio.lede;
+      if(c.bio.statement)document.getElementById("st").innerHTML="<h2>Artist Statement</h2>"+paras(c.bio.statement).map(function(p){return '<p class="serif">'+rich(p)+"</p>";}).join("");
+      if(c.bio.biography)document.getElementById("bio").innerHTML="<h2>Biography</h2>"+paras(c.bio.biography).map(function(p){return "<p>"+rich(p)+"</p>";}).join("");}
+    drawSets();drawNpSets();}
+  var started=false;function start(){if(!started){started=true;route();}}
+  if(/[?&]nocms\b/.test(location.search)){start();}
+  else{fetch(CMS_URL,{headers:{apikey:CMS_KEY}}).then(function(r){return r.ok?r.json():null;})
+    .then(function(rows){if(rows&&rows[0]){try{applyCMS(rows[0].value);}catch(e){}if(started)route();}})
+    .catch(function(){}).then(start);
+    setTimeout(start,1500);}
 </script></body></html>
