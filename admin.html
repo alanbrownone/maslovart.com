@@ -45,6 +45,16 @@
   .ph img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;display:block;background:#eee;}
   .ph .n{font-size:12px;font-weight:600;color:#888;margin:6px 0 4px;}
   .ph input[type=text]{font-size:13px;padding:6px 8px;}
+  .portrait-prev{width:100%;max-width:360px;aspect-ratio:3/2;object-fit:cover;border:1px solid var(--line);border-radius:8px;display:block;background:#eee;}
+  .upl{display:inline-block;margin-top:10px;}
+  .upl input{display:none;}
+  .logogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:6px;}
+  .logo{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;}
+  .logo .box{height:70px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #f0f0ec;margin-bottom:6px;}
+  .logo .box img{max-width:100%;max-height:100%;}
+  .logo input{font-size:13px;padding:6px 8px;}
+  .logo .acts{display:flex;justify-content:space-between;margin-top:4px;}
+  .logo .acts button{padding:2px 8px;font-size:14px;}
   .ph .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:#555;margin-top:6px;font-weight:500;}
   .savebar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,0,0,.06);z-index:10;}
   .savebar .in{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
@@ -123,8 +133,18 @@
         <label for="b-lede" style="margin-top:0">Short introduction (under his name)</label><textarea id="b-lede" style="min-height:70px"></textarea>
         <label for="b-statement">Artist Statement</label><textarea id="b-statement" style="min-height:180px"></textarea>
         <label for="b-biography">Biography</label><textarea id="b-biography" style="min-height:180px"></textarea>
-        <p class="hint">The achievements list, venue logos and portrait will be editable in the next update.</p>
+        <p class="hint">The achievements list will be editable in a later update.</p>
       </div>
+      <div class="card"><h3>Portrait</h3>
+        <img class="portrait-prev" id="b-portrait" alt="Current portrait">
+        <label class="btn upl">Upload a new portrait&hellip;<input type="file" accept="image/*" id="b-portrait-file"></label>
+        <p class="hint">A wide photo works best: it is shown at 3 wide by 2 tall.</p>
+        <div class="msg" id="m-portrait"></div></div>
+      <div class="card"><h3>Exhibited &amp; Published logos</h3>
+        <p class="hint" style="margin:0 0 8px">Use the arrows to change the order. The name is read aloud for blind visitors and shown if the logo can't load.</p>
+        <div class="logogrid" id="b-logos"></div>
+        <label class="btn upl">Add logos&hellip;<input type="file" accept="image/*" multiple id="b-logo-file"></label>
+        <div class="msg" id="m-logos"></div></div>
     </section>
 
     <section data-tab="contact">
@@ -181,7 +201,9 @@
       var ps=function(sel){return Array.prototype.map.call(d.querySelectorAll(sel),function(p){return htmlToText(p.innerHTML);});};
       DEFAULTS={series:series,prices:prices,titles:titles,noprint:noprint,numberWithTitle:!!w.NUMBER_WITH_TITLE,
         contact:{phone:w.GPHONE,email:w.GEMAIL},
-        bio:{lede:d.getElementById("artlede").textContent.trim(),statement:ps("#st p"),biography:ps("#bio p")}};
+        bio:{lede:d.getElementById("artlede").textContent.trim(),statement:ps("#st p"),biography:ps("#bio p"),
+          portrait:(d.getElementById("portrait").style.backgroundImage.match(/url\(["']?([^"')]+)/)||[])[1]||""},
+        logos:Array.prototype.map.call(d.querySelectorAll("#logos img"),function(i){return {src:i.getAttribute("src"),alt:i.getAttribute("alt")||""};})};
       done=true;res();}catch(e){rej(e);}};
     setTimeout(function(){if(!done)rej(new Error("The site page did not load."));},20000);
     f.src="site-v3.html?nocms";});}
@@ -191,6 +213,7 @@
     ["series","prices","titles","noprint"].forEach(function(k){if(saved[k])Object.keys(saved[k]).forEach(function(s){if(d[k].hasOwnProperty(s))d[k][s]=clone(saved[k][s]);});});
     if(saved.contact)Object.assign(d.contact,saved.contact);
     if(saved.bio)Object.assign(d.bio,saved.bio);
+    if(Array.isArray(saved.logos))d.logos=clone(saved.logos);
     if(typeof saved.numberWithTitle=="boolean")d.numberWithTitle=saved.numberWithTitle;
     return d;}
 
@@ -247,7 +270,29 @@
     bindText("c-email",function(){return doc.contact.email;},function(v){doc.contact.email=v.trim();});
     $("ph-numtitle").checked=doc.numberWithTitle;}
 
-  function drawAll(){drawPrices();drawSeries();drawPhotos();drawSimple();}
+  // ---------- Uploads (to Cloudinary, signed by our Supabase helper) ----------
+  function upload(file,folder){return sb.auth.getSession().then(function(r){var s=r.data.session;if(!s)throw new Error("Please sign in again.");
+      return fetch(SUPA_URL+"/functions/v1/cloudinary-sign",{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPA_KEY,Authorization:"Bearer "+s.access_token},body:JSON.stringify({folder:folder})});})
+    .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||"Upload not allowed.");return j;});})
+    .then(function(sig){var f=new FormData();f.append("file",file);f.append("api_key",sig.api_key);f.append("timestamp",sig.timestamp);f.append("folder",sig.folder);f.append("signature",sig.signature);
+      return fetch("https://api.cloudinary.com/v1_1/"+sig.cloud_name+"/image/upload",{method:"POST",body:f});})
+    .then(function(r){return r.json().then(function(j){if(!r.ok||!j.secure_url)throw new Error((j.error&&j.error.message)||"Cloudinary didn't accept the file.");return j.secure_url;});});}
+  function busy(m,t){m.className="msg";m.textContent=t;}
+  function fail(m,e){m.className="msg err";m.textContent="Upload failed: "+(e.message||e);}
+  $("b-portrait-file").addEventListener("change",function(e){var f=e.target.files[0],m=$("m-portrait");e.target.value="";if(!f)return;busy(m,"Uploading\u2026");
+    upload(f,"portrait").then(function(url){doc.bio.portrait=url;$("b-portrait").src=url;setDirty(true);m.className="msg ok";m.textContent="Uploaded. Press Save to put it on the site.";}).catch(function(err){fail(m,err);});});
+  $("b-logo-file").addEventListener("change",function(e){var fs=Array.prototype.slice.call(e.target.files),m=$("m-logos");e.target.value="";if(!fs.length)return;busy(m,"Uploading "+fs.length+" logo"+(fs.length>1?"s":"")+"\u2026");
+    Promise.all(fs.map(function(f){return upload(f,"logos").then(function(url){return {src:url,alt:f.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ")};});}))
+      .then(function(a){doc.logos=doc.logos.concat(a);drawLogos();setDirty(true);m.className="msg ok";m.textContent="Added. Check each name, then press Save.";}).catch(function(err){fail(m,err);});});
+  function drawLogos(){var box=$("b-logos");box.innerHTML="";var L=doc.logos;
+    L.forEach(function(l,i){var mv=function(d){var j=i+d;if(j<0||j>=L.length)return;var t=L[i];L[i]=L[j];L[j]=t;setDirty(true);drawLogos();};
+      box.appendChild(el("div",{className:"logo"},[el("div",{className:"box"},[el("img",{src:l.src,alt:""})]),
+        el("input",{type:"text",value:l.alt,placeholder:"Name","aria-label":"Logo name",oninput:function(e){l.alt=e.target.value;setDirty(true);}}),
+        el("div",{className:"acts"},[el("button",{type:"button",title:"Move earlier",text:"\u2190",disabled:i==0,onclick:function(){mv(-1);}}),
+          el("button",{type:"button",className:"x",title:"Remove this logo",text:"\u2715",onclick:function(){if(confirm("Remove the "+(l.alt||"")+" logo?")){L.splice(i,1);setDirty(true);drawLogos();}}}),
+          el("button",{type:"button",title:"Move later",text:"\u2192",disabled:i==L.length-1,onclick:function(){mv(1);}})])]));});}
+
+  function drawAll(){drawPrices();drawSeries();drawPhotos();drawSimple();$("b-portrait").src=doc.bio.portrait;drawLogos();}
 
   // ---------- Save ----------
   function cleaned(){var d=clone(doc),problems=[];

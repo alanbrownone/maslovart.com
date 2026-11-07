@@ -31,3 +31,6 @@ mistake can be undone.
 How it works: the changes are saved in Supabase (project "MaslovArt.com Website"), and Version 3
 (`site-v3.html`) lays them over the values written into the page when it loads. If Supabase can't be
 reached, the site simply shows the built-in values. Only emails listed in the `admins` table can save.
+
+Photo uploads go to Guennadi's Cloudinary account (cloud `dniry2qgz`, folder `maslovart/`). The admin page asks
+the Supabase helper `cloudinary-sign` for permission first; it only says yes to people on the admins list.
