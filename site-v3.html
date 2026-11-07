@@ -287,8 +287,10 @@
       <div><div class="lbl">Email</div><a id="cemail" href="mailto:guennadi@maslovart.com">guennadi@maslovart.com</a></div>
       <div><div class="lbl">Website</div>www.maslovart.com</div>
       <div><div class="lbl">Instagram</div>guennadi.maslov</div><div><div class="lbl">Facebook</div>Guennadi Maslov</div></div>
-    <div><form class="getintouch"><input placeholder="Your name"><input placeholder="Your email"><input placeholder="Phone (optional)"><textarea placeholder="Your message" rows="5"></textarea><button class="buy" type="button" style="align-self:flex-start">Send message</button></form>
-      <p style="font-size:12.5px;color:#aaa;margin-top:10px">Mirrors the &ldquo;Get in Touch&rdquo; form on alans-art.com &mdash; fields to be confirmed.</p></div></div>
+    <div><form class="getintouch" id="cform" novalidate><input name="name" placeholder="Your name" aria-label="Your name" required maxlength="120"><input name="email" type="email" placeholder="Your email" aria-label="Your email" required maxlength="200"><input name="phone" type="tel" placeholder="Phone (optional)" aria-label="Phone (optional)" maxlength="40"><textarea name="message" placeholder="Your message" aria-label="Your message" rows="5" required maxlength="5000"></textarea>
+        <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+        <button class="buy" type="submit" style="align-self:flex-start">Send message</button></form>
+      <p id="cmsg" role="status" style="font-size:14px;margin-top:10px;min-height:1.4em"></p></div></div>
 </section>
 </div>
 </main>
@@ -439,6 +441,17 @@
   // Only our own images or Cloudinary uploads; Cloudinary ones are resized for the page
   function safeSrc(u){return /^images\/[\w\/.-]+$/.test(u)||/^https:\/\/res\.cloudinary\.com\//.test(u);}
   function cld(u,t){return /^https:\/\/res\.cloudinary\.com\/[^\/]+\/image\/upload\//.test(u)?u.replace("/image/upload/","/image/upload/"+t+"/"):u;}
+  // Contact form: sent to the "contact" helper in Supabase, which saves it and emails Guennadi
+  document.getElementById("cform").addEventListener("submit",function(e){e.preventDefault();var f=e.target,m=document.getElementById("cmsg"),b=f.querySelector("button");
+    var d={name:f.name.value.trim(),email:f.email.value.trim(),phone:f.phone.value.trim(),message:f.message.value.trim(),website:f.website.value,page:location.href};
+    var bad=!d.name?"your name":!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)?"a valid email":!d.message?"a message":"";
+    if(bad){m.style.color="#b3261e";m.textContent="Please add "+bad+".";return;}
+    b.disabled=true;m.style.color="#666";m.textContent="Sending\u2026";
+    fetch(CMS_URL.split("/rest/")[0]+"/functions/v1/contact",{method:"POST",headers:{"Content-Type":"application/json",apikey:CMS_KEY},body:JSON.stringify(d)})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||"");});})
+      .then(function(){f.reset();m.style.color="var(--teal)";m.textContent="Thank you! Your message was sent. We'll get back to you soon.";})
+      .catch(function(err){m.style.color="#b3261e";m.textContent=err.message||"Sorry, the message could not be sent. Please email or call instead.";})
+      .then(function(){b.disabled=false;});});
   var started=false;function start(){if(!started){started=true;route();}}
   if(/[?&]nocms\b/.test(location.search)){start();}
   else{fetch(CMS_URL,{headers:{apikey:CMS_KEY}}).then(function(r){return r.ok?r.json():null;})
