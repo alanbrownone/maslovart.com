@@ -118,7 +118,7 @@
 <section data-page="artist" class="pg">
   <p class="kick">The Artist</p>
   <div class="artist-top">
-    <div class="portrait" style="background-image:url(images/guennadi-portrait-v2.jpg)"></div>
+    <div class="portrait" id="portrait" style="background-image:url(images/guennadi-portrait-v2.jpg)"></div>
     <div><h1 class="ttl serif">Guennadi Maslov</h1>
       <p class="lede" id="artlede">Photographer, artist, and educator. Originally from Ukraine, working between Eastern Europe and the United States.</p>
       <div class="subnav"><span>Statement</span><span>Biography</span><span>Achievements</span></div></div>
@@ -134,7 +134,7 @@
     <h2 style="margin-top:34px">Collections</h2><ul class="coll"><li>Cincinnati Art Museum, Cincinnati, OH</li><li>Contemporary Arts Center, Cincinnati, OH</li><li>Van Zameran Gallery, Amsterdam, Holland</li><li>Grinev Private Museum Collection, Kyiv, Ukraine</li><li>Houston Fine Arts Museum, Houston, TX</li><li>Kharkiv State Fine Arts Museum, Kharkiv, Ukraine</li><li>Kharkiv School of Photography Museum, Ukraine</li><li>Corson Hirschfeld Media Collection, Norman, OK</li></ul>
     <p style="font-size:14px;color:#666;margin-top:8px">Maslov’s works have been acquired by more than thirty private collectors in Ukraine, Russia, Lithuania, USA, Germany, Slovakia, and Finland.</p>
     <h2 style="margin-top:34px">Exhibited &amp; Published</h2>
-    <div class="logos"><span class="lg"><img src="images/logos/cincinnati-art-museum.jpg" alt="Cincinnati Art Museum"></span><span class="lg"><img src="images/logos/cac.jpg" alt="Contemporary Arts Center"></span><span class="lg"><img src="images/logos/fotofest.jpg" alt="FotoFest"></span><span class="lg"><img src="images/logos/ipa.png" alt="International Photography Awards"></span><span class="lg"><img src="images/logos/emop-bratislava.jpg" alt="European Month of Photography, Bratislava"></span><span class="lg"><img src="images/logos/emop-kyiv.jpg" alt="European Month of Photography, Kyiv"></span><span class="lg"><img src="images/logos/grynyov-art-collection.jpg" alt="Grynyov Art Collection"></span><span class="lg"><img src="images/logos/lesley-university.jpg" alt="Lesley University"></span><span class="lg"><img src="images/logos/moksop.jpg" alt="MOKSOP"></span><span class="lg"><img src="images/logos/weston-art-gallery.jpg" alt="Weston Art Gallery"></span><span class="lg"><img src="images/logos/cintas-center.jpg" alt="Cintas Center"></span><span class="lg"><img src="images/logos/riffe-gallery.jpg" alt="Riffe Gallery"></span><span class="lg"><img src="images/logos/washington-park.jpg" alt="Washington Park"></span><span class="lg"><img src="images/logos/vasa.jpg" alt="VASA Project"></span><span class="lg"><img src="images/logos/mykolaiv-library.jpg" alt="Mykolaiv regional library"></span><span class="lg"><img src="images/logos/carnegie.jpg" alt="The Carnegie"></span><span class="lg"><img src="images/logos/hanna-house-books.jpg" alt="Hanna House Books"></span><span class="lg"><img src="images/logos/international-house.jpg" alt="International House"></span></div></div>
+    <div class="logos" id="logos"><span class="lg"><img src="images/logos/cincinnati-art-museum.jpg" alt="Cincinnati Art Museum"></span><span class="lg"><img src="images/logos/cac.jpg" alt="Contemporary Arts Center"></span><span class="lg"><img src="images/logos/fotofest.jpg" alt="FotoFest"></span><span class="lg"><img src="images/logos/ipa.png" alt="International Photography Awards"></span><span class="lg"><img src="images/logos/emop-bratislava.jpg" alt="European Month of Photography, Bratislava"></span><span class="lg"><img src="images/logos/emop-kyiv.jpg" alt="European Month of Photography, Kyiv"></span><span class="lg"><img src="images/logos/grynyov-art-collection.jpg" alt="Grynyov Art Collection"></span><span class="lg"><img src="images/logos/lesley-university.jpg" alt="Lesley University"></span><span class="lg"><img src="images/logos/moksop.jpg" alt="MOKSOP"></span><span class="lg"><img src="images/logos/weston-art-gallery.jpg" alt="Weston Art Gallery"></span><span class="lg"><img src="images/logos/cintas-center.jpg" alt="Cintas Center"></span><span class="lg"><img src="images/logos/riffe-gallery.jpg" alt="Riffe Gallery"></span><span class="lg"><img src="images/logos/washington-park.jpg" alt="Washington Park"></span><span class="lg"><img src="images/logos/vasa.jpg" alt="VASA Project"></span><span class="lg"><img src="images/logos/mykolaiv-library.jpg" alt="Mykolaiv regional library"></span><span class="lg"><img src="images/logos/carnegie.jpg" alt="The Carnegie"></span><span class="lg"><img src="images/logos/hanna-house-books.jpg" alt="Hanna House Books"></span><span class="lg"><img src="images/logos/international-house.jpg" alt="International House"></span></div></div>
 </section>
 
 <section data-page="portfolio" class="pg">
@@ -424,8 +424,14 @@
       document.getElementById("cphone").textContent=GPHONE;var ce=document.getElementById("cemail");ce.textContent=GEMAIL;ce.href="mailto:"+GEMAIL;}
     if(c.bio){if(c.bio.lede)document.getElementById("artlede").textContent=c.bio.lede;
       if(c.bio.statement)document.getElementById("st").innerHTML="<h2>Artist Statement</h2>"+paras(c.bio.statement).map(function(p){return '<p class="serif">'+rich(p)+"</p>";}).join("");
+      if(c.bio.portrait&&/^https:\/\/res\.cloudinary\.com\//.test(c.bio.portrait))document.getElementById("portrait").style.backgroundImage='url("'+cld(c.bio.portrait,"f_auto,q_auto,w_1000")+'")';
       if(c.bio.biography)document.getElementById("bio").innerHTML="<h2>Biography</h2>"+paras(c.bio.biography).map(function(p){return "<p>"+rich(p)+"</p>";}).join("");}
+    if(Array.isArray(c.logos))document.getElementById("logos").innerHTML=c.logos.filter(function(l){return l&&safeSrc(l.src);}).map(function(l){
+      return '<span class="lg"><img src="'+esc(cld(l.src,"f_auto,q_auto,h_160"))+'" alt="'+esc(l.alt||"")+'" loading="lazy"></span>';}).join("");
     drawSets();drawNpSets();}
+  // Only our own images or Cloudinary uploads; Cloudinary ones are resized for the page
+  function safeSrc(u){return /^images\/[\w\/.-]+$/.test(u)||/^https:\/\/res\.cloudinary\.com\//.test(u);}
+  function cld(u,t){return /^https:\/\/res\.cloudinary\.com\/[^\/]+\/image\/upload\//.test(u)?u.replace("/image/upload/","/image/upload/"+t+"/"):u;}
   var started=false;function start(){if(!started){started=true;route();}}
   if(/[?&]nocms\b/.test(location.search)){start();}
   else{fetch(CMS_URL,{headers:{apikey:CMS_KEY}}).then(function(r){return r.ok?r.json():null;})
