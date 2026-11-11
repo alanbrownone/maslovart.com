@@ -188,14 +188,21 @@
 
     <section data-tab="team">
       <p class="intro" id="tm-intro"></p>
+      <div class="card">
+        <h3>My password</h3>
+        <div class="two"><div><label for="mp-1">New password (at least 8 characters)</label><input type="password" id="mp-1" autocomplete="new-password"></div>
+          <div><label for="mp-2">Type it again</label><input type="password" id="mp-2" autocomplete="new-password"></div></div>
+        <div style="margin-top:16px"><button class="primary" type="button" id="mp-save">Change my password</button></div>
+        <div class="msg" id="m-mypass"></div>
+      </div>
       <div class="card"><div style="overflow-x:auto"><table class="hist"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th></th></tr></thead><tbody id="t-team"></tbody></table></div>
         <div class="msg" id="m-team"></div></div>
       <div class="card" id="tm-form">
-        <h3 id="tm-ftitle">Add a team member</h3>
+        <h3 id="tm-ftitle">Add a user</h3>
         <div class="two"><div><label for="tm-first">First name</label><input type="text" id="tm-first"></div><div><label for="tm-last">Last name</label><input type="text" id="tm-last"></div></div>
         <div class="two"><div><label for="tm-email">Email</label><input type="email" id="tm-email"></div><div><label for="tm-phone">Phone (optional)</label><input type="tel" id="tm-phone"></div></div>
         <label for="tm-role">Role</label>
-        <select id="tm-role"><option value="manager">Site Manager: can edit everything except the team</option><option value="admin">Admin: can also add and remove team members</option></select>
+        <select id="tm-role"><option value="manager">Site Manager: can edit everything except users</option><option value="admin">Admin: can also add and remove users and set passwords</option></select>
         <div style="margin-top:16px;display:flex;gap:10px"><button class="primary" type="button" id="tm-save">Add and send invitation</button><button type="button" id="tm-cancel" class="hidden">Cancel</button></div>
         <div class="msg" id="m-tmform"></div>
       </div>
@@ -275,7 +282,7 @@
   window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
 
   // ---------- tabs ----------
-  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["team","Team"],["history","Earlier versions"]];
+  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["team","Users"],["history","Earlier versions"]];
   function showTab(t){document.querySelectorAll("#v-app section").forEach(function(s){s.classList.toggle("hidden",s.dataset.tab!=t);});
     document.querySelectorAll("#tabs button").forEach(function(b){b.classList.toggle("on",b.dataset.t==t);});
     if(t=="history")loadHistory();if(t=="messages")loadMessages();if(t=="team")loadTeam();try{sessionStorage.setItem("admintab",t);}catch(e){}}
@@ -445,22 +452,34 @@
   function teamCall(body){return sb.auth.getSession().then(function(r){var s=r.data.session;if(!s)throw new Error("Please sign in again.");
       return fetch(SUPA_URL+"/functions/v1/team",{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPA_KEY,Authorization:"Bearer "+s.access_token},body:JSON.stringify(body)});})
     .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||j.error)throw new Error(j.error||"Something went wrong ("+r.status+").");return j;});});}
-  function teamForm(x){editing=x||null;$("tm-ftitle").textContent=x?"Edit "+(x.first_name||x.email):"Add a team member";
+  function teamForm(x){editing=x||null;$("tm-ftitle").textContent=x?"Edit "+(x.first_name||x.email):"Add a user";
     $("tm-first").value=x?x.first_name||"":"";$("tm-last").value=x?x.last_name||"":"";$("tm-email").value=x?x.email:"";$("tm-email").disabled=!!x;
     $("tm-phone").value=x?x.phone||"":"";$("tm-role").value=x?x.role:"manager";$("tm-save").textContent=x?"Save changes":"Add and send invitation";
     $("tm-cancel").classList.toggle("hidden",!x);$("m-tmform").textContent="";if(x)$("tm-form").scrollIntoView({behavior:"smooth"});}
   function loadTeam(){var isAdmin=userRole=="admin",tb=$("t-team");
-    $("tm-intro").textContent=isAdmin?"Everyone who can sign in to this admin. Admins can add, change and remove team members. Site Managers can edit everything else.":"Everyone who can sign in to this admin. Only an Admin can add or remove team members.";
+    $("tm-intro").textContent=isAdmin?"Everyone who can sign in to this admin. Admins can add, change and remove users and set their passwords. Site Managers can edit everything else and change their own password.":"Everyone who can sign in to this admin. Only an Admin can add or remove users. You can change your own password here.";
     $("tm-form").classList.toggle("hidden",!isAdmin);tb.innerHTML="<tr><td colspan=5>Loading…</td></tr>";
     sb.from("admins").select("email,first_name,last_name,phone,role,name").order("role").order("last_name").then(function(r){tb.innerHTML="";
       if(r.error){tb.innerHTML="";$("m-team").className="msg err";$("m-team").textContent="Couldn't load the team: "+r.error.message;return;}
       (r.data||[]).forEach(function(x){var nm=[x.first_name,x.last_name].filter(Boolean).join(" ")||x.name||"";
+        var pwRow=null,tr;
+        var setPw=function(){if(pwRow){pwRow.remove();pwRow=null;return;}var i1=el("input",{type:"password",placeholder:"New password (8+ characters)",autocomplete:"new-password",style:"max-width:260px"}),pm=el("span",{className:"msg"});
+          pwRow=el("tr",{},[el("td",{colSpan:5},[el("div",{style:"display:flex;gap:10px;align-items:center;flex-wrap:wrap"},[el("span",{text:"New password for "+(nm||x.email)+":"}),i1,
+            el("button",{className:"primary",type:"button",text:"Set password",onclick:function(){if(i1.value.length<8){pm.className="msg err";pm.textContent="At least 8 characters, please.";return;}
+              pm.className="msg";pm.textContent="Saving…";teamCall({action:"set_password",email:x.email,password:i1.value}).then(function(){i1.value="";pm.className="msg ok";pm.textContent="Done. Let them know their new password.";}).catch(function(e){pm.className="msg err";pm.textContent=e.message;});}}),pm])])]);
+          tr.after(pwRow);i1.focus();};
         var acts=isAdmin?[el("button",{type:"button",text:"Edit",onclick:function(){teamForm(x);}})," ",
-          x.email==userEmail.toLowerCase()?null:el("button",{type:"button",text:"Remove",onclick:function(){if(!confirm("Remove "+(nm||x.email)+" from the team? They won't be able to sign in any more."))return;
+          x.email==userEmail.toLowerCase()?null:el("button",{type:"button",text:"Set password",onclick:setPw})," ",
+          x.email==userEmail.toLowerCase()?null:el("button",{type:"button",text:"Remove",onclick:function(){if(!confirm("Remove "+(nm||x.email)+"? They won't be able to sign in any more."))return;
             var m=$("m-team");m.className="msg";m.textContent="Removing…";teamCall({action:"delete",email:x.email}).then(function(){m.className="msg ok";m.textContent=(nm||x.email)+" was removed.";loadTeam();}).catch(function(e){m.className="msg err";m.textContent=e.message;});}})]:[];
-        tb.appendChild(el("tr",{},[el("td",{text:nm+(x.email==userEmail.toLowerCase()?" (you)":"")}),el("td",{text:x.email}),el("td",{text:x.phone||""}),el("td",{text:ROLE_NAMES[x.role]||x.role}),
+        tb.appendChild(tr=el("tr",{},[el("td",{text:nm+(x.email==userEmail.toLowerCase()?" (you)":"")}),el("td",{text:x.email}),el("td",{text:x.phone||""}),el("td",{text:ROLE_NAMES[x.role]||x.role}),
           el("td",{},acts.map(function(a){return typeof a=="string"?document.createTextNode(a):a;}))]));});});}
   $("tm-cancel").addEventListener("click",function(){teamForm(null);});
+  $("mp-save").addEventListener("click",function(){var m=$("m-mypass"),p=$("mp-1").value;
+    if(p.length<8){m.className="msg err";m.textContent="The password needs at least 8 characters.";return;}
+    if(p!=$("mp-2").value){m.className="msg err";m.textContent="The two passwords don't match.";return;}
+    m.className="msg";m.textContent="Saving…";sb.auth.updateUser({password:p}).then(function(r){if(r.error){m.className="msg err";m.textContent="Couldn't change it: "+r.error.message;return;}
+      $("mp-1").value="";$("mp-2").value="";m.className="msg ok";m.textContent="Your password was changed. Use it next time you sign in.";});});
   $("tm-save").addEventListener("click",function(){var m=$("m-tmform"),b={action:editing?"update":"create",first_name:$("tm-first").value.trim(),last_name:$("tm-last").value.trim(),
       email:editing?editing.email:$("tm-email").value.trim(),phone:$("tm-phone").value.trim(),role:$("tm-role").value,redirectTo:location.origin+location.pathname};
     if(!b.first_name||!b.last_name||!b.email){m.className="msg err";m.textContent="Please fill in the first name, last name and email.";return;}
