@@ -61,6 +61,7 @@
   .vrow img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block;background:#eee;}
   .vrow label:first-child{margin-top:0;}
   .vrow .acts{display:flex;justify-content:space-between;gap:8px;}
+  .chks{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;} label.chk{display:flex;align-items:center;gap:6px;margin:0;font-weight:400;cursor:pointer;} label.chk input{width:auto;margin:0;}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   @media (max-width:600px){.vrow{grid-template-columns:1fr;} .vrow img{max-width:240px;}}
   .ph .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:#555;margin-top:6px;font-weight:500;}
@@ -145,7 +146,7 @@
     </section>
 
     <section data-tab="vintage">
-      <p class="intro">Single vintage prints, shown grouped by decade on the Vintage Prints page. The examples there now are placeholders: replace their photos and details, or remove them, and add the real prints.</p>
+      <p class="intro">Single vintage prints, shown grouped by decade on the Vintage Prints page. Upload a photo of the print, then fill in its details. Empty boxes are simply left off the site. The examples there now are placeholders: replace or remove them.</p>
       <datalist id="v-decades"></datalist>
       <div id="t-vintage"></div>
       <div id="v-add"></div><div class="msg" id="m-vintage"></div>
@@ -318,13 +319,24 @@
       var replace=fileButton("Replace photo\u2026",false,function(fs){busy(m,"Uploading\u2026");upload(fs[0],"vintage").then(function(url){v.src=url;img.src=thumbOf(url);setDirty(true);m.className="msg ok";m.textContent="Photo replaced. Press Save to put it on the site.";}).catch(function(e){fail(m,e);});});
       var f=function(label,key,attrs){attrs=attrs||{};attrs.value=v[key]==null?"":v[key];attrs.oninput=function(e){v[key]=attrs.type=="number"?(e.target.value===""?"":+e.target.value):e.target.value;setDirty(true);};
         return [el("label",{text:label}),el(attrs.tag||"input",attrs)];};
+      var chk=function(label,key){return el("label",{className:"chk"},[el("input",{type:"checkbox",checked:!!v[key],onchange:function(e){v[key]=e.target.checked;setDirty(true);}}),el("span",{text:" "+label})]);};
+      var two=function(a,b){var w=function(x){return Array.isArray(x)?el("div",{},x):x;};return el("div",{className:"two"},[w(a),w(b)]);};
+      var yr=f("Year taken","year",{type:"text",placeholder:"e.g. 1993"}),dec=f("Decade (groups the page)","decade",{type:"text",list:"v-decades",placeholder:"e.g. 1990s"});
+      yr[1].addEventListener("input",function(e){var y=String(e.target.value).match(/\b(19|20)\d\d\b/);if(y&&auto){v.decade=y[0].slice(0,3)+"0s";dec[1].value=v.decade;}});
+      var auto=!v.decade;dec[1].addEventListener("input",function(){auto=false;});
       box.appendChild(el("div",{className:"card vrow"},[el("div",{},[img,replace]),
-        el("div",{},[].concat(f("Title","title",{type:"text"}),
-          el("div",{className:"two"},[el("div",{},f("Decade","decade",{type:"text",list:"v-decades",placeholder:"e.g. 1980s"})),el("div",{},f("Year created","year",{type:"text",placeholder:"e.g. 1987"}))]),
-          f("Description","desc",{tag:"textarea",style:"min-height:70px"}),
-          el("div",{className:"two"},[el("div",{},f("Price ($, leave empty if not set yet)","price",{type:"number",min:"0",step:"1"})),el("div",{className:"acts",style:"align-self:end"},moveBtns(L,i,drawVintage,"\""+(v.title||"this print")+"\""))])))]));});
+        el("div",{},[].concat(f("Title","title",{type:"text",placeholder:"e.g. Steps, Simeiz"}),
+          two(yr,dec),
+          two(f("Year printed","printed",{type:"text",placeholder:"e.g. 1995"}),f("Inventory number","code",{type:"text",placeholder:"e.g. 300_1131 MO"})),
+          f("Handwriting on front","front",{type:"text",placeholder:"e.g. Guennadi Maslov '95"}),
+          f("Handwriting on back (verso)","verso",{type:"text",placeholder:"e.g. Guennadi Maslov  June 25 - July 6, 1993  Simeiz, Crimea, USSR"}),
+          two(f("Paper / process","paper",{type:"text",placeholder:"e.g. Gelatin silver print, archival"}),f("Size","size",{type:"text",placeholder:"e.g. 38 x 50.5 cm (15 x 20 in)"})),
+          el("div",{className:"chks"},[chk("Signed by the artist","signed"),chk("Certificate of authenticity enclosed","coa"),chk("Framed (leave unchecked if unframed)","framed")]),
+          f("Condition","condition",{type:"text",placeholder:"e.g. Excellent, no marks"}),
+          f("Notes (optional, shown under the details)","desc",{tag:"textarea",style:"min-height:60px"}),
+          two(f("Price ($, leave empty if not set yet)","price",{type:"number",min:"0",step:"1"}),el("div",{className:"acts",style:"align-self:end"},moveBtns(L,i,drawVintage,"\""+(v.title||"this print")+"\"")))))]));});
     var add=$("v-add");add.innerHTML="";add.appendChild(fileButton("Add vintage prints\u2026",true,function(fs){busy(m,"Uploading "+fs.length+" photo"+(fs.length>1?"s":"")+"\u2026");
-      Promise.all(fs.map(function(f){return upload(f,"vintage").then(function(u){return {decade:L.length?L[L.length-1].decade:"",src:u,title:fileTitle(f),year:"",desc:"",price:""};});}))
+      Promise.all(fs.map(function(f){return upload(f,"vintage").then(function(u){return {decade:L.length?L[L.length-1].decade:"",src:u,title:fileTitle(f),year:"",desc:"",price:"",signed:true,coa:true,framed:false};});}))
         .then(function(a){a.forEach(function(x){L.push(x);});setDirty(true);drawVintage();m.className="msg ok";m.textContent="Added at the end. Fill in the details, then press Save.";}).catch(function(e){fail(m,e);});}));}
   function decadeList(){var a=DECADES.slice();doc.vintage.forEach(function(v){if(v.decade&&a.indexOf(v.decade)<0)a.push(v.decade);});return a.sort();}
   $("ph-series").addEventListener("change",drawPhotos);
@@ -372,7 +384,7 @@
       if(!L.length)problems.push(s.name+" needs at least one photo.");
       if(JSON.stringify(srcs)!=JSON.stringify(DEFAULTS.photos[s.slug]))d.photos[s.slug]=srcs;d.titles[s.slug]=t;d.noprint[s.slug]=np;});
     delete d.items;
-    d.vintage.forEach(function(v){v.title=String(v.title||"").trim();v.decade=String(v.decade||"").trim();if(!v.title||!v.decade)problems.push("Every vintage print needs a title and a decade.");
+    d.vintage.forEach(function(v){["printed","code","front","verso","paper","size","condition"].forEach(function(k){if(k in v){v[k]=String(v[k]||"").trim();if(!v[k])delete v[k];}});v.title=String(v.title||"").trim();v.decade=String(v.decade||"").trim();if(!v.title||!v.decade)problems.push("Every vintage print needs a title and a decade.");
       if(v.price!==""&&!(+v.price>0))problems.push("Vintage prices must be more than $0, or left empty.");});
     if(JSON.stringify(d.vintage)==JSON.stringify(DEFAULTS.vintage))delete d.vintage;
     SETS.forEach(function(s){d.prices[s.slug]=(d.prices[s.slug]||[]).filter(function(r){return String(r[0]).trim()||r[1]!=="";}).map(function(r){
