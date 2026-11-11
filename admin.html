@@ -106,7 +106,7 @@
 
   <!-- Choose a new password (after clicking the emailed link) -->
   <div id="v-recover" class="card narrow hidden">
-    <h3>Choose a new password</h3>
+    <h3 id="r-head">Choose a new password</h3>
     <form id="f-recover">
       <label for="r-pass">New password (at least 8 characters)</label><input type="password" id="r-pass" autocomplete="new-password" minlength="8" required>
       <label for="r-pass2">Type it again</label><input type="password" id="r-pass2" autocomplete="new-password" minlength="8" required>
@@ -186,6 +186,21 @@
         <p class="hint" id="m-empty">No messages yet.</p></div>
     </section>
 
+    <section data-tab="team">
+      <p class="intro" id="tm-intro"></p>
+      <div class="card"><div style="overflow-x:auto"><table class="hist"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th></th></tr></thead><tbody id="t-team"></tbody></table></div>
+        <div class="msg" id="m-team"></div></div>
+      <div class="card" id="tm-form">
+        <h3 id="tm-ftitle">Add a team member</h3>
+        <div class="two"><div><label for="tm-first">First name</label><input type="text" id="tm-first"></div><div><label for="tm-last">Last name</label><input type="text" id="tm-last"></div></div>
+        <div class="two"><div><label for="tm-email">Email</label><input type="email" id="tm-email"></div><div><label for="tm-phone">Phone (optional)</label><input type="tel" id="tm-phone"></div></div>
+        <label for="tm-role">Role</label>
+        <select id="tm-role"><option value="manager">Site Manager: can edit everything except the team</option><option value="admin">Admin: can also add and remove team members</option></select>
+        <div style="margin-top:16px;display:flex;gap:10px"><button class="primary" type="button" id="tm-save">Add and send invitation</button><button type="button" id="tm-cancel" class="hidden">Cancel</button></div>
+        <div class="msg" id="m-tmform"></div>
+      </div>
+    </section>
+
     <section data-tab="history">
       <p class="intro">Every time you save, the version before it is kept here. To go back, click "Bring back", look it over, then press Save.</p>
       <div class="card"><table class="hist"><thead><tr><th>Saved</th><th>By</th><th></th></tr></thead><tbody id="t-history"></tbody></table>
@@ -220,7 +235,7 @@
   // HTML from the page -> text with **bold**
   function htmlToText(html){var d=document.createElement("div");d.innerHTML=String(html).replace(/<\/?(b|strong)>/gi,"**");return d.textContent.replace(/\s+/g," ").trim();}
 
-  var DEFAULTS=null, doc=null, SETS=[], DECADES=[], dirty=false, recovering=false, userEmail="";
+  var DEFAULTS=null, doc=null, SETS=[], DECADES=[], dirty=false, recovering=false, userEmail="", userRole="", startHash=location.hash;
 
   // ---------- starting values come from the site itself ----------
   function loadDefaults(){return new Promise(function(res,rej){var f=$("sitefrm"),done=false;
@@ -260,10 +275,10 @@
   window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
 
   // ---------- tabs ----------
-  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["history","Earlier versions"]];
+  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["team","Team"],["history","Earlier versions"]];
   function showTab(t){document.querySelectorAll("#v-app section").forEach(function(s){s.classList.toggle("hidden",s.dataset.tab!=t);});
     document.querySelectorAll("#tabs button").forEach(function(b){b.classList.toggle("on",b.dataset.t==t);});
-    if(t=="history")loadHistory();if(t=="messages")loadMessages();try{sessionStorage.setItem("admintab",t);}catch(e){}}
+    if(t=="history")loadHistory();if(t=="messages")loadMessages();if(t=="team")loadTeam();try{sessionStorage.setItem("admintab",t);}catch(e){}}
   TABS.forEach(function(t){$("tabs").appendChild(el("button",{type:"button","data-t":t[0],text:t[1],onclick:function(){showTab(t[0]);}}));});
 
   // ---------- Prices ----------
@@ -425,6 +440,35 @@
         d.addEventListener("toggle",function(){if(d.open&&!x.is_read)setRead(true);});
         box.appendChild(d);});});}
 
+  // ---------- Team ----------
+  var ROLE_NAMES={admin:"Admin",manager:"Site Manager"},editing=null;
+  function teamCall(body){return sb.auth.getSession().then(function(r){var s=r.data.session;if(!s)throw new Error("Please sign in again.");
+      return fetch(SUPA_URL+"/functions/v1/team",{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPA_KEY,Authorization:"Bearer "+s.access_token},body:JSON.stringify(body)});})
+    .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||j.error)throw new Error(j.error||"Something went wrong ("+r.status+").");return j;});});}
+  function teamForm(x){editing=x||null;$("tm-ftitle").textContent=x?"Edit "+(x.first_name||x.email):"Add a team member";
+    $("tm-first").value=x?x.first_name||"":"";$("tm-last").value=x?x.last_name||"":"";$("tm-email").value=x?x.email:"";$("tm-email").disabled=!!x;
+    $("tm-phone").value=x?x.phone||"":"";$("tm-role").value=x?x.role:"manager";$("tm-save").textContent=x?"Save changes":"Add and send invitation";
+    $("tm-cancel").classList.toggle("hidden",!x);$("m-tmform").textContent="";if(x)$("tm-form").scrollIntoView({behavior:"smooth"});}
+  function loadTeam(){var isAdmin=userRole=="admin",tb=$("t-team");
+    $("tm-intro").textContent=isAdmin?"Everyone who can sign in to this admin. Admins can add, change and remove team members. Site Managers can edit everything else.":"Everyone who can sign in to this admin. Only an Admin can add or remove team members.";
+    $("tm-form").classList.toggle("hidden",!isAdmin);tb.innerHTML="<tr><td colspan=5>Loading…</td></tr>";
+    sb.from("admins").select("email,first_name,last_name,phone,role,name").order("role").order("last_name").then(function(r){tb.innerHTML="";
+      if(r.error){tb.innerHTML="";$("m-team").className="msg err";$("m-team").textContent="Couldn't load the team: "+r.error.message;return;}
+      (r.data||[]).forEach(function(x){var nm=[x.first_name,x.last_name].filter(Boolean).join(" ")||x.name||"";
+        var acts=isAdmin?[el("button",{type:"button",text:"Edit",onclick:function(){teamForm(x);}})," ",
+          x.email==userEmail.toLowerCase()?null:el("button",{type:"button",text:"Remove",onclick:function(){if(!confirm("Remove "+(nm||x.email)+" from the team? They won't be able to sign in any more."))return;
+            var m=$("m-team");m.className="msg";m.textContent="Removing…";teamCall({action:"delete",email:x.email}).then(function(){m.className="msg ok";m.textContent=(nm||x.email)+" was removed.";loadTeam();}).catch(function(e){m.className="msg err";m.textContent=e.message;});}})]:[];
+        tb.appendChild(el("tr",{},[el("td",{text:nm+(x.email==userEmail.toLowerCase()?" (you)":"")}),el("td",{text:x.email}),el("td",{text:x.phone||""}),el("td",{text:ROLE_NAMES[x.role]||x.role}),
+          el("td",{},acts.map(function(a){return typeof a=="string"?document.createTextNode(a):a;}))]));});});}
+  $("tm-cancel").addEventListener("click",function(){teamForm(null);});
+  $("tm-save").addEventListener("click",function(){var m=$("m-tmform"),b={action:editing?"update":"create",first_name:$("tm-first").value.trim(),last_name:$("tm-last").value.trim(),
+      email:editing?editing.email:$("tm-email").value.trim(),phone:$("tm-phone").value.trim(),role:$("tm-role").value,redirectTo:location.origin+location.pathname};
+    if(!b.first_name||!b.last_name||!b.email){m.className="msg err";m.textContent="Please fill in the first name, last name and email.";return;}
+    $("tm-save").disabled=true;m.className="msg";m.textContent=editing?"Saving…":"Adding…";
+    teamCall(b).then(function(j){$("tm-save").disabled=false;var was=editing;teamForm(null);m.className="msg ok";
+      m.textContent=was?"Saved.":(j.invited?"Added. "+b.first_name+" will get an email with a link to choose a password.":"Added. They already have a sign-in, so they can sign in now.");loadTeam();})
+      .catch(function(e){$("tm-save").disabled=false;m.className="msg err";m.textContent=e.message;});});
+
   // ---------- Sign in / out ----------
   $("f-login").addEventListener("submit",function(e){e.preventDefault();var m=$("m-login");m.className="msg";m.textContent="Signing in…";
     sb.auth.signInWithPassword({email:$("l-email").value.trim(),password:$("l-pass").value}).then(function(r){
@@ -441,7 +485,7 @@
 
   function enter(session){if(!session){view("v-login");return;}
     userEmail=session.user.email;$("who").textContent=userEmail;$("who").classList.remove("hidden");$("signout").classList.remove("hidden");view("v-loading");
-    sb.rpc("is_admin").then(function(r){if(r.error||!r.data){view("v-denied");return;}
+    sb.rpc("my_role").then(function(r){if(r.error||!r.data){view("v-denied");return;}userRole=r.data;
       Promise.all([loadDefaults(),sb.from("site_content").select("value").eq("key","site").maybeSingle()]).then(function(a){
         if(a[1].error)throw a[1].error;
         doc=merge(a[1].data&&a[1].data.value);
@@ -450,8 +494,9 @@
         var t="prices";try{t=sessionStorage.getItem("admintab")||t;}catch(e){}showTab(t);
       }).catch(function(e){view("v-loading");$("v-loading").innerHTML="";$("v-loading").appendChild(el("p",{className:"msg err",text:"Something went wrong loading the editor: "+(e.message||e)}));});});}
 
+  if(/type=invite/.test(startHash)){$("r-head").textContent="Welcome! Choose a password for the admin";}
   sb.auth.onAuthStateChange(function(ev){if(ev=="PASSWORD_RECOVERY"){recovering=true;view("v-recover");}});
-  sb.auth.getSession().then(function(r){if(recovering||/type=recovery/.test(location.hash))return view("v-recover");enter(r.data.session);});
+  sb.auth.getSession().then(function(r){if(recovering||/type=(recovery|invite)/.test(startHash)){recovering=true;return view("v-recover");}enter(r.data.session);});
 })();
 </script>
 </body>
