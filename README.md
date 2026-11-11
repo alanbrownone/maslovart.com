@@ -23,9 +23,9 @@ The list of sets (names, intro text, photo counts) is the `SETS` list near the b
 
 ## Admin page
 
-Team: the **Team** tab lists everyone who can sign in (Supabase table `admins`: email, first/last name, phone, role).
+Users: the **Users** tab lists everyone who can sign in (Supabase table `admins`: email, first/last name, phone, role).
 Two roles: **Admin** (everything, including adding/removing team members) and **Site Manager** (everything except the team).
-Adding someone runs the Supabase edge function `team`, which sends them an invitation email to choose a password.
+Adding someone runs the Supabase edge function `team`, which sends them an invitation email to choose a password. Everyone can change their own password there; Admins can also set anyone's password.
 
 
 `admin.html` is a private page where Alan and Guennadi sign in and change the site without editing code:
