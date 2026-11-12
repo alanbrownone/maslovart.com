@@ -203,7 +203,7 @@
         <div style="margin-top:16px"><button class="primary" type="button" id="mp-save">Change my password</button></div>
         <div class="msg" id="m-mypass"></div>
       </div>
-      <div class="card"><div style="overflow-x:auto"><table class="hist"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th></th></tr></thead><tbody id="t-team"></tbody></table></div>
+      <div class="card"><div style="overflow-x:auto"><table class="hist"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th title="Gets an email when someone confirms a mailing-list signup">New subscriber alerts</th><th></th></tr></thead><tbody id="t-team"></tbody></table></div>
         <div class="msg" id="m-team"></div></div>
       <div class="card" id="tm-form">
         <h3 id="tm-ftitle">Add a user</h3>
@@ -483,13 +483,13 @@
     $("tm-cancel").classList.toggle("hidden",!x);$("m-tmform").textContent="";if(x)$("tm-form").scrollIntoView({behavior:"smooth"});}
   function loadTeam(){var isAdmin=userRole=="admin",tb=$("t-team");
     $("tm-intro").textContent=isAdmin?"Everyone who can sign in to this admin. Admins can add, change and remove users and set their passwords. Site Managers can edit everything else and change their own password.":"Everyone who can sign in to this admin. Only an Admin can add or remove users. You can change your own password here.";
-    $("tm-form").classList.toggle("hidden",!isAdmin);tb.innerHTML="<tr><td colspan=5>Loading…</td></tr>";
-    sb.from("admins").select("email,first_name,last_name,phone,role,name").order("role").order("last_name").then(function(r){tb.innerHTML="";
+    $("tm-form").classList.toggle("hidden",!isAdmin);tb.innerHTML="<tr><td colspan=6>Loading…</td></tr>";
+    sb.from("admins").select("email,first_name,last_name,phone,role,name,subscriber_alerts").order("role").order("last_name").then(function(r){tb.innerHTML="";
       if(r.error){tb.innerHTML="";$("m-team").className="msg err";$("m-team").textContent="Couldn't load the team: "+r.error.message;return;}
       (r.data||[]).forEach(function(x){var nm=[x.first_name,x.last_name].filter(Boolean).join(" ")||x.name||"";
         var pwRow=null,tr;
         var setPw=function(){if(pwRow){pwRow.remove();pwRow=null;return;}var i1=el("input",{type:"password",placeholder:"New password (8+ characters)",autocomplete:"new-password",style:"max-width:260px"}),pm=el("span",{className:"msg"});
-          pwRow=el("tr",{},[el("td",{colSpan:5},[el("div",{style:"display:flex;gap:10px;align-items:center;flex-wrap:wrap"},[el("span",{text:"New password for "+(nm||x.email)+":"}),i1,
+          pwRow=el("tr",{},[el("td",{colSpan:6},[el("div",{style:"display:flex;gap:10px;align-items:center;flex-wrap:wrap"},[el("span",{text:"New password for "+(nm||x.email)+":"}),i1,
             el("button",{className:"primary",type:"button",text:"Set password",onclick:function(){if(i1.value.length<8){pm.className="msg err";pm.textContent="At least 8 characters, please.";return;}
               pm.className="msg";pm.textContent="Saving…";teamCall({action:"set_password",email:x.email,password:i1.value}).then(function(){i1.value="";pm.className="msg ok";pm.textContent="Done. Let them know their new password.";}).catch(function(e){pm.className="msg err";pm.textContent=e.message;});}}),pm])])]);
           tr.after(pwRow);i1.focus();};
@@ -498,7 +498,15 @@
           x.email==userEmail.toLowerCase()?null:el("button",{type:"button",text:"Remove",onclick:function(){if(!confirm("Remove "+(nm||x.email)+"? They won't be able to sign in any more."))return;
             var m=$("m-team");m.className="msg";m.textContent="Removing…";teamCall({action:"delete",email:x.email}).then(function(){m.className="msg ok";m.textContent=(nm||x.email)+" was removed.";loadTeam();}).catch(function(e){m.className="msg err";m.textContent=e.message;});}})]:[];
         tb.appendChild(tr=el("tr",{},[el("td",{text:nm+(x.email==userEmail.toLowerCase()?" (you)":"")}),el("td",{text:x.email}),el("td",{text:x.phone||""}),el("td",{text:ROLE_NAMES[x.role]||x.role}),
+          el("td",{},[alertBox(x,isAdmin||x.email==userEmail.toLowerCase())]),
           el("td",{},acts.map(function(a){return typeof a=="string"?document.createTextNode(a):a;}))]));});});}
+  // "New subscriber alerts" checkbox: checked = this person gets an email when someone confirms a mailing-list signup
+  function alertBox(x,canEdit){var cb=el("input",{type:"checkbox",checked:!!x.subscriber_alerts,disabled:!canEdit,"aria-label":"New subscriber alerts for "+x.email});
+    cb.addEventListener("change",function(){var v=cb.checked,m=$("m-team");cb.disabled=true;
+      sb.rpc("set_subscriber_alerts",{target_email:x.email,on_off:v}).then(function(r){cb.disabled=false;
+        if(r.error){cb.checked=!v;m.className="msg err";m.textContent="Couldn't change the alert setting: "+r.error.message;return;}
+        x.subscriber_alerts=v;m.className="msg ok";m.textContent=(x.first_name||x.email)+(v?" will now get":" will no longer get")+" new subscriber alerts.";});});
+    return el("label",{style:"display:inline-flex;gap:6px;align-items:center;cursor:pointer"},[cb]);}
   $("tm-cancel").addEventListener("click",function(){teamForm(null);});
   $("mp-save").addEventListener("click",function(){var m=$("m-mypass"),p=$("mp-1").value;
     if(p.length<8){m.className="msg err";m.textContent="The password needs at least 8 characters.";return;}
