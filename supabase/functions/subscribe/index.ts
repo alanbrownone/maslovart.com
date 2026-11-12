@@ -4,7 +4,8 @@
 //   action "unsubscribe": the button on the unsubscribe page (POST with the token) takes the address off
 // Opening a link never changes anything (email scanners open links); only the button POST does.
 // Secrets: RESEND_API_KEY, MAIL_FROM (already set for "contact"). Optional: SITE_URL (the page the email
-// links point to), SIGNUP_ALERT_TO (who gets "new subscriber" alerts; falls back to CONTACT_TO).
+// links point to). "New subscriber" alerts go to admin users with subscriber_alerts checked
+// (fallback when none: SIGNUP_ALERT_TO, then CONTACT_TO).
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 const CORS = {
@@ -77,11 +78,16 @@ Deno.serve(async (req) => {
     await sendEmail(row.email, "Welcome to Guennadi Maslov's mailing list", wrap(
       `<p>${hi}</p><p>Thank you for joining my mailing list. I'll write when there are new prints, exhibitions and news.</p>` +
       `<p>Guennadi</p><p style="color:#888;font-size:12px;margin-top:28px">Don't want these emails? <a href="${esc(site() + "#/unsubscribe/" + unsub)}" style="color:#888">Unsubscribe</a>.</p>`));
-    const alertTo = Deno.env.get("SIGNUP_ALERT_TO") || Deno.env.get("CONTACT_TO");
-    if (alertTo) {
+    // "New subscriber" alert: to every admin user with the box checked in admin > Users.
+    // If nobody has it checked, SIGNUP_ALERT_TO / CONTACT_TO is used so alerts aren't silently lost.
+    const { data: admins } = await sb.from("admins").select("email").eq("subscriber_alerts", true);
+    let alertTo = (admins || []).map((a) => a.email).filter(Boolean);
+    if (!alertTo.length) alertTo = [Deno.env.get("SIGNUP_ALERT_TO") || Deno.env.get("CONTACT_TO") || ""].filter(Boolean);
+    if (alertTo.length) {
       const { count } = await sb.from("subscribers").select("id", { count: "exact", head: true }).eq("status", "confirmed");
-      await sendEmail(alertTo, `New subscriber: ${row.email}`, wrap(
-        `<p><b>${esc(row.name || "(no name)")}</b> &lt;${esc(row.email)}&gt; confirmed their subscription.</p><p>Confirmed subscribers now: ${count ?? "?"}</p>`));
+      const html = wrap(`<p><b>${esc(row.name || "(no name)")}</b> &lt;${esc(row.email)}&gt; confirmed their subscription.</p><p>Confirmed subscribers now: ${count ?? "?"}</p>` +
+        `<p style="color:#888;font-size:12px">You get this because "New subscriber alerts" is checked for you in the website admin (Users tab).</p>`);
+      for (const to of alertTo) await sendEmail(to, `New subscriber: ${row.email}`, html);
     }
     return json({ ok: true });
   }
