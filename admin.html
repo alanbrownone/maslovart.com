@@ -186,6 +186,14 @@
         <p class="hint" id="m-empty">No messages yet.</p></div>
     </section>
 
+    <section data-tab="subscribers">
+      <p class="intro">People on the mailing list. Signing up on the site sends them a "Please confirm" email; they only count as <b>Confirmed</b> after pressing "Yes, add me to the list". <b>Waiting</b> means they haven't confirmed yet (removed automatically after 48 hours).</p>
+      <div class="card"><p id="sub-count" class="hint"></p>
+        <p><button type="button" id="sub-csv">Download confirmed emails (CSV)</button></p>
+        <div style="overflow-x:auto"><table class="hist"><thead><tr><th>Email</th><th>Name</th><th>Status</th><th>Signed up</th><th>Confirmed</th><th></th></tr></thead><tbody id="t-subs"></tbody></table></div>
+        <p class="hint hidden" id="sub-empty">No one has signed up yet.</p></div>
+    </section>
+
     <section data-tab="team">
       <p class="intro" id="tm-intro"></p>
       <div class="card">
@@ -282,10 +290,10 @@
   window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
 
   // ---------- tabs ----------
-  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["team","Users"],["history","Earlier versions"]];
+  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["subscribers","Mailing list"],["team","Users"],["history","Earlier versions"]];
   function showTab(t){document.querySelectorAll("#v-app section").forEach(function(s){s.classList.toggle("hidden",s.dataset.tab!=t);});
     document.querySelectorAll("#tabs button").forEach(function(b){b.classList.toggle("on",b.dataset.t==t);});
-    if(t=="history")loadHistory();if(t=="messages")loadMessages();if(t=="team")loadTeam();try{sessionStorage.setItem("admintab",t);}catch(e){}}
+    if(t=="history")loadHistory();if(t=="messages")loadMessages();if(t=="subscribers")loadSubs();if(t=="team")loadTeam();try{sessionStorage.setItem("admintab",t);}catch(e){}}
   TABS.forEach(function(t){$("tabs").appendChild(el("button",{type:"button","data-t":t[0],text:t[1],onclick:function(){showTab(t[0]);}}));});
 
   // ---------- Prices ----------
@@ -446,6 +454,23 @@
         d.appendChild(el("div",{className:"mbtns"},btns));
         d.addEventListener("toggle",function(){if(d.open&&!x.is_read)setRead(true);});
         box.appendChild(d);});});}
+
+  // ---------- Mailing list ----------
+  var SUB_STATUS={confirmed:"Confirmed",pending:"Waiting to confirm",unsubscribed:"Unsubscribed"},SUBS=[];
+  function loadSubs(){var tb=$("t-subs");tb.innerHTML="<tr><td colspan=6 class=hint>Loading…</td></tr>";
+    sb.from("subscribers").select("id,email,name,status,created_at,confirmed_at").order("created_at",{ascending:false}).limit(5000).then(function(r){tb.innerHTML="";
+      if(r.error){tb.appendChild(el("tr",{},[el("td",{colSpan:6,className:"msg err",text:"Couldn't load the list: "+r.error.message})]));return;}
+      SUBS=r.data||[];$("sub-empty").classList.toggle("hidden",SUBS.length>0);
+      var n=SUBS.filter(function(x){return x.status=="confirmed";}).length;$("sub-count").textContent=n+" confirmed subscriber"+(n==1?"":"s")+".";
+      SUBS.forEach(function(x){var tr=el("tr",{},[el("td",{text:x.email}),el("td",{text:x.name||""}),el("td",{text:SUB_STATUS[x.status]||x.status}),
+        el("td",{text:new Date(x.created_at).toLocaleDateString()}),el("td",{text:x.confirmed_at?new Date(x.confirmed_at).toLocaleDateString():""}),
+        el("td",{},[el("button",{type:"button",text:"Remove",onclick:function(){if(!confirm("Remove "+x.email+" from the mailing list? This can't be undone."))return;
+          sb.from("subscribers").delete().eq("id",x.id).then(function(u){if(u.error)return alert("Couldn't remove: "+u.error.message);loadSubs();});}})])]);
+        tb.appendChild(tr);});});}
+  $("sub-csv").addEventListener("click",function(){var q=function(v){return '"'+String(v||"").replace(/"/g,'""')+'"';};
+    var rows=[["email","name","confirmed"]].concat(SUBS.filter(function(x){return x.status=="confirmed";}).map(function(x){return [x.email,x.name,x.confirmed_at];}));
+    var a=el("a",{href:URL.createObjectURL(new Blob([rows.map(function(r){return r.map(q).join(",");}).join("\n")],{type:"text/csv"})),download:"maslovart-mailing-list.csv"});
+    document.body.appendChild(a);a.click();a.remove();});
 
   // ---------- Team ----------
   var ROLE_NAMES={admin:"Admin",manager:"Site Manager"},editing=null;
