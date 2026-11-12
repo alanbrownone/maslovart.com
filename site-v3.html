@@ -289,8 +289,8 @@
 </div></section>
 
 <section data-page="optin" class="pg"><div class="optin">
-  <p class="kick">Mailing list</p><h1 class="ttl serif" id="oi-ttl">Confirm your subscription</h1>
-  <p class="lede" id="oi-txt">Press the button to join Guennadi Maslov's mailing list.</p>
+  <p class="kick">Mailing list</p><h1 class="ttl serif" id="oi-ttl">One last step</h1>
+  <p class="lede" id="oi-txt">Press the button below to finish joining Guennadi Maslov's mailing list.</p>
   <button class="buy" type="button" id="oi-btn">Yes, add me to the list</button>
   <p id="oi-msg" role="status" style="font-size:15px;margin-top:14px;min-height:1.4em"></p>
 </div></section>
@@ -490,14 +490,15 @@
       .then(function(){b.disabled=false;});});
   var OPTIN=null;
   function fillOptin(kind,token){OPTIN={kind:kind,token:token};var un=kind=="unsubscribe";
-    document.getElementById("oi-ttl").textContent=un?"Unsubscribe":"Confirm your subscription";
-    document.getElementById("oi-txt").textContent=un?"Press the button to stop getting emails from Guennadi Maslov's mailing list.":"Press the button to join Guennadi Maslov's mailing list.";
+    document.getElementById("oi-ttl").textContent=un?"Unsubscribe":"One last step";
+    document.getElementById("oi-txt").textContent=un?"Press the button below to stop getting emails from Guennadi Maslov's mailing list.":"Press the button below to finish joining Guennadi Maslov's mailing list.";
     var b=document.getElementById("oi-btn");b.textContent=un?"Yes, unsubscribe me":"Yes, add me to the list";b.disabled=false;b.style.display="";
     document.getElementById("oi-msg").textContent="";}
   document.getElementById("oi-btn").addEventListener("click",function(){if(!OPTIN)return;var b=this,m=document.getElementById("oi-msg"),un=OPTIN.kind=="unsubscribe";
     b.disabled=true;m.style.color="#555";m.textContent="One moment\u2026";
-    subCall({action:OPTIN.kind,token:OPTIN.token}).then(function(){b.style.display="none";m.style.color="var(--teal)";
-        m.textContent=un?"You're unsubscribed. You won't get any more emails from this list.":"Thank you! You're on the list. A welcome email is on its way.";})
+    subCall({action:OPTIN.kind,token:OPTIN.token}).then(function(){b.style.display="none";m.textContent="";
+        document.getElementById("oi-ttl").textContent=un?"You're unsubscribed":"Subscription confirmed";
+        document.getElementById("oi-txt").textContent=un?"You won't get any more emails from this list.":"Thank you! You're on the list. A welcome email is on its way.";})
       .catch(function(err){b.disabled=false;m.style.color="#b3261e";m.textContent=err.message||"Sorry, that didn't work. Please try again.";});});
   var started=false;function start(){if(!started){started=true;route();}}
   if(/[?&]nocms\b/.test(location.search)){start();}
