@@ -23,7 +23,7 @@ The list of sets (names, intro text, photo counts) is the `SETS` list near the b
 
 ## Admin page
 
-After signing in, the admin opens on a home screen with one button per area (New Prints, Vintage Prints, The Artist, Contact, Messages, Mailing list, Users, Earlier versions). "Admin home" goes back to it. New Prints has three tabs inside (Sizes & prices, Series text, Photos). Each vintage print has exactly one size and price.
+After signing in, the admin opens on a home screen with one button per area (New Prints, Vintage Prints, The Artist, Contact, Messages, Mailing list, Users, Earlier versions). "Admin home" goes back to it. New Prints has three tabs inside (Sizes & prices, Series, Photos). In Series you can add, delete, rename and reorder series and set each one's photo shape; the saved order is `seriesOrder`, and a new series appears on the site once it has at least one photo. Vintage Prints has its own series list (the headings on the Vintage Prints page, decades at first), saved as `vintageGroups`; each vintage print belongs to one of them and has exactly one size and price.
 
 Users: the **Users** tab lists everyone who can sign in (Supabase table `admins`: email, first/last name, phone, role).
 Two roles: **Admin** (everything, including adding/removing team members) and **Site Manager** (everything except the team).

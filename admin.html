@@ -71,6 +71,11 @@
   .vrow .acts{display:flex;justify-content:space-between;gap:8px;}
   .chks{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;} label.chk{display:flex;align-items:center;gap:6px;margin:0;font-weight:400;cursor:pointer;} label.chk input{width:auto;margin:0;}
   .vsize{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:4px 14px 14px;margin-top:14px;} .vsize .hint{margin:10px 0 0;}
+  .shead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;} .shead h3{margin:0;}
+  .sacts{display:flex;gap:6px;flex-wrap:wrap;} .sacts button{padding:5px 12px;font-size:13.5px;}
+  button.danger,button.del{color:var(--red);} button.danger:disabled,button.del:disabled{color:#bbb;}
+  .grow{display:grid;grid-template-columns:1fr 58px 40px 40px 74px;gap:8px;align-items:center;margin-bottom:6px;} .grow button{padding:4px 10px;font-size:14px;}
+  .ghead{font:600 20px Georgia,"Times New Roman",serif;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line);}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   @media (max-width:600px){.vrow{grid-template-columns:1fr;} .vrow img{max-width:240px;}}
   .ph .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:#555;margin-top:6px;font-weight:500;}
@@ -150,8 +155,8 @@
     </section>
 
     <section data-tab="series">
-      <p class="intro">The name and introduction for each series. Leave a blank line between paragraphs. To make words bold, put two stars on each side, like **this**.</p>
-      <div id="t-series"></div>
+      <p class="intro">Add, delete, rename and reorder the series. They appear on the site in this order. Leave a blank line between paragraphs of an introduction. To make words bold, put two stars on each side, like **this**.</p>
+      <div id="t-series"></div><div class="msg" id="m-series"></div>
     </section>
 
     <section data-tab="photos">
@@ -163,8 +168,8 @@
     </section>
 
     <section data-tab="vintage">
-      <p class="intro">Single vintage prints, shown grouped by decade on the Vintage Prints page. Upload a photo of the print, then fill in its details. Empty boxes are simply left off the site. The examples there now are placeholders: replace or remove them.</p>
-      <datalist id="v-decades"></datalist>
+      <p class="intro">Single vintage prints, shown grouped by series (such as decades) on the Vintage Prints page. Upload a photo of the print, then fill in its details. Empty boxes are simply left off the site. The examples there now are placeholders: replace or remove them.</p>
+      <div id="v-groups"></div>
       <div id="t-vintage"></div>
       <div id="v-add"></div><div class="msg" id="m-vintage"></div>
     </section>
@@ -262,6 +267,9 @@
   function el(tag,attrs,kids){var e=document.createElement(tag);for(var k in attrs||{}){if(k=="text")e.textContent=attrs[k];else if(k.slice(0,2)=="on")e.addEventListener(k.slice(2),attrs[k]);else if(k in e&&k!="list")e[k]=attrs[k];else e.setAttribute(k,attrs[k]);}
     (kids||[]).forEach(function(c){if(c)e.appendChild(c);});return e;}
   function clone(x){return JSON.parse(JSON.stringify(x));}
+  var SLUG=/^[a-z0-9-]{1,60}$/;
+  // Vintage headings: same characters the site allows
+  function groupName(g){return String(g==null?"":g).replace(/[^\w\s-]/g,"").replace(/\s+/g," ").trim();}
   function toParas(t){return String(t||"").split(/\n\s*\n/).map(function(s){return s.trim();}).filter(Boolean);}
   function fromParas(a){return (a||[]).join("\n\n");}
   // HTML from the page -> text with **bold**
@@ -274,12 +282,12 @@
     f.onload=function(){try{var w=f.contentWindow,d=w.document;
       SETS=w.SETS.map(function(s){return {slug:s.slug,name:s.name,count:s.count,dir:s.dir||s.slug};});
       var series={},prices={},titles={},noprint={},photos={};
-      w.SETS.forEach(function(s){series[s.slug]={name:s.name,intro:s.intro.map(htmlToText),by:s.by||""};
+      w.SETS.forEach(function(s){series[s.slug]={name:s.name,intro:s.intro.map(htmlToText),by:s.by||"",ratio:(w.RATIO||{})[s.slug]||"1/1"};
         prices[s.slug]=clone(w.PRICES[s.slug]||[]);titles[s.slug]=clone(w.TITLES[s.slug]||{});noprint[s.slug]=clone(w.NOPRINT[s.slug]||[]);
         photos[s.slug]=[];for(var n=1;n<=s.count;n++)photos[s.slug].push("images/"+(s.dir||s.slug)+"/"+pad(n)+".jpg");});
       DECADES=clone(w.DECADES);
       var ps=function(sel){return Array.prototype.map.call(d.querySelectorAll(sel),function(p){return htmlToText(p.innerHTML);});};
-      DEFAULTS={series:series,prices:prices,titles:titles,noprint:noprint,photos:photos,numberWithTitle:!!w.NUMBER_WITH_TITLE,
+      DEFAULTS={series:series,prices:prices,titles:titles,noprint:noprint,photos:photos,numberWithTitle:!!w.NUMBER_WITH_TITLE,order:SETS.map(function(s){return s.slug;}),
         vintage:w.VINTAGE.map(function(v){return {decade:v.decade,src:v.img,title:v.title,year:htmlToText(v.year),desc:v.desc,price:v.price===""?"":+v.price};}),
         contact:{phone:w.GPHONE,email:w.GEMAIL},
         bio:{lede:d.getElementById("artlede").textContent.trim(),statement:ps("#st p"),biography:ps("#bio p"),
@@ -291,13 +299,24 @@
 
   // Saved values are laid over the starting values
   function merge(saved){var d=clone(DEFAULTS);saved=saved||{};
+    // Which series, in what order. A series added in the admin has no starting values, so it starts empty.
+    var order=d.order.slice();
+    if(Array.isArray(saved.seriesOrder))order=saved.seriesOrder.filter(function(sl,i,a){return SLUG.test(sl)&&a.indexOf(sl)==i&&(d.series[sl]||(saved.series&&saved.series[sl]));});
+    order.forEach(function(sl){if(!d.series[sl]){d.series[sl]={name:"",intro:[],by:"",ratio:"1/1"};d.prices[sl]=[];d.titles[sl]={};d.noprint[sl]=[];d.photos[sl]=[];}});
+    d.order=order;
     ["series","prices","titles","noprint"].forEach(function(k){if(saved[k])Object.keys(saved[k]).forEach(function(s){if(d[k].hasOwnProperty(s))d[k][s]=clone(saved[k][s]);});});
+    order.forEach(function(sl){var o=d.series[sl];if(!o.ratio)o.ratio=(DEFAULTS.series[sl]&&DEFAULTS.series[sl].ratio)||"1/1";});
     if(saved.contact)Object.assign(d.contact,saved.contact);
     if(saved.bio)Object.assign(d.bio,saved.bio);
     if(Array.isArray(saved.logos))d.logos=clone(saved.logos);
     if(Array.isArray(saved.vintage))d.vintage=clone(saved.vintage);
     // Each series' photos as a list the editor can reorder; titles and "not for sale" travel with the photo
-    d.items={};SETS.forEach(function(s){var srcs=(saved.photos&&Array.isArray(saved.photos[s.slug]))?saved.photos[s.slug]:d.photos[s.slug],t=d.titles[s.slug]||{},np=d.noprint[s.slug]||[];
+    // The headings on the Vintage Prints page (decades at first), in order
+    d.vintage.forEach(function(v){v.decade=groupName(v.decade);});
+    var vg=Array.isArray(saved.vintageGroups)?saved.vintageGroups.map(groupName).filter(Boolean):DECADES.slice().sort();
+    d.vintage.forEach(function(v){var g=groupName(v.decade);if(g&&vg.indexOf(g)<0)vg.push(g);});
+    d.vgroups=vg.filter(function(g,i){return vg.indexOf(g)==i;});
+    d.items={};order.forEach(function(sl){var s={slug:sl};var srcs=(saved.photos&&Array.isArray(saved.photos[s.slug]))?saved.photos[s.slug]:(d.photos[s.slug]||[]),t=d.titles[s.slug]||{},np=d.noprint[s.slug]||[];
       d.items[s.slug]=srcs.map(function(src,i){return {src:src,title:t[i+1]||"",np:np.indexOf(i+1)>=0};});});
     delete d.photos;
     if(typeof saved.numberWithTitle=="boolean")d.numberWithTitle=saved.numberWithTitle;
@@ -307,11 +326,11 @@
   window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
 
   // ---------- tabs ----------
-  var TABS=[["prices","Sizes & prices"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["subscribers","Mailing list"],["team","Users"],["history","Earlier versions"]];
+  var TABS=[["prices","Sizes & prices"],["series","Series"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["subscribers","Mailing list"],["team","Users"],["history","Earlier versions"]];
   // The admin home screen: one button per area. An area with several parts gets small tabs inside it.
   var AREAS=[
-    {id:"newprints",title:"New Prints",desc:"Sizes and prices, series names and text, and the photos in each series.",tabs:["prices","series","photos"]},
-    {id:"vintage",title:"Vintage Prints",desc:"One-of-a-kind vintage prints: photo, details, size and price.",tabs:["vintage"]},
+    {id:"newprints",title:"New Prints",desc:"Add, delete and reorder series; their text, photos, sizes and prices.",tabs:["prices","series","photos"]},
+    {id:"vintage",title:"Vintage Prints",desc:"Vintage series and one-of-a-kind prints: photo, details, size and price.",tabs:["vintage"]},
     {id:"bio",title:"The Artist",desc:"Introduction, statement, biography, portrait and venue logos.",tabs:["bio"]},
     {id:"contact",title:"Contact",desc:"Phone and email shown on the Contact page.",tabs:["contact"]},
     {id:"messages",title:"Messages",desc:"Messages sent from the Contact form.",tabs:["messages"]},
@@ -329,9 +348,14 @@
   AREAS.forEach(function(a){$("homegrid").appendChild(el("button",{type:"button","data-area":a.id,onclick:function(){showTab(a.tabs[0]);}},[el("b",{text:a.title}),el("span",{text:a.desc})]));});
   $("go-home").addEventListener("click",showHome);
 
+  // The series as they are now in the editor (added, removed and reordered ones included)
+  function liveSets(){return doc.order.map(function(sl){return {slug:sl,name:String(doc.series[sl].name||"").trim()||"(new series)"};});}
+  function fillSeriesSelect(){var sel=$("ph-series"),keep=sel.value;sel.innerHTML="";liveSets().forEach(function(s){sel.appendChild(el("option",{value:s.slug,text:s.name}));});
+    if(doc.order.indexOf(keep)>=0)sel.value=keep;}
+
   // ---------- Prices ----------
   function drawPrices(){var box=$("t-prices");box.innerHTML="";
-    SETS.forEach(function(s){var rows=doc.prices[s.slug],list=el("div");
+    liveSets().forEach(function(s){var rows=doc.prices[s.slug],list=el("div");
       function draw(){list.innerHTML="";list.appendChild(el("div",{className:"prow"},[el("span",{className:"phead",text:"Size"}),el("span",{className:"phead",text:"Price"}),null]));
         rows.forEach(function(r,i){list.appendChild(el("div",{className:"prow"},[
           el("input",{type:"text",value:r[0],placeholder:"e.g. 16 x 16 in","aria-label":s.name+" size "+(i+1),oninput:function(e){r[0]=e.target.value;setDirty(true);}}),
@@ -342,12 +366,33 @@
         el("button",{type:"button",className:"link",text:"+ Add a size",onclick:function(){rows.push(["",""]);setDirty(true);draw();list.querySelector(".prow:last-child input").focus();}})]));});}
 
   // ---------- Series text ----------
-  function drawSeries(){var box=$("t-series");box.innerHTML="";
-    SETS.forEach(function(s){var o=doc.series[s.slug];
-      box.appendChild(el("div",{className:"card"},[el("h3",{text:o.name||s.name}),
-        el("label",{text:"Series name"}),el("input",{type:"text",value:o.name,oninput:function(e){o.name=e.target.value;setDirty(true);}}),
+  var SHAPES=[["1/1","Square"],["5/4","Slightly wide (5:4)"],["3/1","Panorama (3:1)"]];
+  function drawSeries(){var box=$("t-series");box.innerHTML="";var O=doc.order;
+    O.forEach(function(sl,i){var o=doc.series[sl],n=doc.items[sl].length,h3=el("h3",{text:String(o.name||"").trim()||"(new series)"});
+      var mv=function(d){var j=i+d;if(j<0||j>=O.length)return;O[i]=O[j];O[j]=sl;setDirty(true);redrawSeriesLists();};
+      var shape=el("select",{"aria-label":"Photo shape",onchange:function(e){o.ratio=e.target.value;setDirty(true);}});
+      SHAPES.forEach(function(x){shape.appendChild(el("option",{value:x[0],text:x[1]}));});shape.value=o.ratio||"1/1";
+      box.appendChild(el("div",{className:"card","data-slug":sl},[
+        el("div",{className:"shead"},[h3,el("div",{className:"sacts"},[
+          el("button",{type:"button",title:"Move up",text:"\u2191 Up",disabled:i==0,onclick:function(){mv(-1);}}),
+          el("button",{type:"button",title:"Move down",text:"\u2193 Down",disabled:i==O.length-1,onclick:function(){mv(1);}}),
+          el("button",{type:"button",className:"danger",text:"Delete series",disabled:O.length==1,title:O.length==1?"The site needs at least one series":"Delete this series",onclick:function(){
+            if(!confirm("Delete the series \""+(String(o.name||"").trim()||"(new series)")+"\" and its "+n+" photo"+(n==1?"":"s")+"?\n\nIt comes off the website when you press Save. Changed your mind before saving? Reload this page and don't save. After saving, you can bring it back from Earlier versions."))return;
+            O.splice(i,1);setDirty(true);redrawSeriesLists();}})])]),
+        el("p",{className:"hint",style:"margin:0 0 4px",text:n+" photo"+(n==1?"":"s")+". Add or remove photos in the Photos tab."}),
+        el("label",{text:"Series name"}),el("input",{type:"text",value:o.name,oninput:function(e){o.name=e.target.value;h3.textContent=e.target.value.trim()||"(new series)";setDirty(true);},onchange:function(){fillSeriesSelect();drawPrices();}}),
+        el("label",{text:"Photo shape (how the photos are cropped in the series grids)"}),shape,
         el("label",{text:"Introduction"}),el("textarea",{value:fromParas(o.intro),style:"min-height:200px",oninput:function(e){o.intro=toParas(e.target.value);setDirty(true);}}),
-        el("label",{text:"Written by (optional)"}),el("input",{type:"text",value:o.by||"",placeholder:"Leave empty if Guennadi wrote it",oninput:function(e){o.by=e.target.value;setDirty(true);}})]));});}
+        el("label",{text:"Written by (optional)"}),el("input",{type:"text",value:o.by||"",placeholder:"Leave empty if Guennadi wrote it",oninput:function(e){o.by=e.target.value;setDirty(true);}})]));});
+    box.appendChild(el("button",{type:"button",className:"primary",text:"+ Add a new series",onclick:addSeries}));}
+  function slugify(t){return String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,50)||"series";}
+  function addSeries(){var name=prompt("Name of the new series:");if(name==null||!name.trim())return;name=name.trim();
+    var base=slugify(name),sl=base,k=2;while(doc.series[sl]||DEFAULTS.series[sl])sl=base+"-"+(k++);
+    doc.series[sl]={name:name,intro:[],by:"",ratio:"1/1"};doc.prices[sl]=[];doc.titles[sl]={};doc.noprint[sl]=[];doc.items[sl]=[];doc.order.push(sl);
+    setDirty(true);redrawSeriesLists();$("ph-series").value=sl;drawPhotos();
+    var m=$("m-series");m.className="msg ok";m.textContent="\""+name+"\" added at the end. Next: add its photos in the Photos tab and its sizes in Sizes & prices, then press Save.";
+    var c=document.querySelector('#t-series [data-slug="'+sl+'"]');if(c)c.scrollIntoView({behavior:"smooth",block:"center"});}
+  function redrawSeriesLists(){drawSeries();fillSeriesSelect();drawPhotos();drawPrices();}
 
   // ---------- Photos ----------
   function pad(n){return (n<10?"0":"")+n;}
@@ -357,10 +402,10 @@
   function fileTitle(f){return f.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ").trim();}
   function fileButton(label,multiple,onfiles){var inp=el("input",{type:"file",accept:"image/*",multiple:!!multiple,onchange:function(e){var fs=Array.prototype.slice.call(e.target.files);e.target.value="";if(fs.length)onfiles(fs);}});
     return el("label",{className:"btn upl"},[document.createTextNode(label),inp]);}
-  function moveBtns(L,i,redraw,what){var mv=function(d){var j=i+d;if(j<0||j>=L.length)return;var t=L[i];L[i]=L[j];L[j]=t;setDirty(true);redraw();};
-    return [el("button",{type:"button",title:"Move earlier",text:"\u2190",disabled:i==0,onclick:function(){mv(-1);}}),
-      el("button",{type:"button",className:"x",title:"Remove",text:"\u2715",onclick:function(){if(confirm("Remove "+what+"?")){L.splice(i,1);setDirty(true);redraw();}}}),
-      el("button",{type:"button",title:"Move later",text:"\u2192",disabled:i==L.length-1,onclick:function(){mv(1);}})];}
+  function moveBtns(L,i,redraw,what,can){can=can||function(j){return j>=0&&j<L.length;};var mv=function(d){var j=i+d;if(!can(j))return;var t=L[i];L[i]=L[j];L[j]=t;setDirty(true);redraw();};
+    return [el("button",{type:"button",title:"Move earlier",text:"\u2190",disabled:!can(i-1),onclick:function(){mv(-1);}}),
+      el("button",{type:"button",className:"del",title:"Delete "+what,text:"\u2715 Delete",onclick:function(){if(confirm("Delete "+what+"?\n\nIt comes off the website when you press Save.")){L.splice(i,1);setDirty(true);redraw();}}}),
+      el("button",{type:"button",title:"Move later",text:"\u2192",disabled:!can(i+1),onclick:function(){mv(1);}})];}
   function drawPhotos(){var slug=$("ph-series").value,box=$("t-photos"),m=$("m-photos");box.innerHTML="";if(!doc.items[slug])return;
     var L=doc.items[slug];
     L.forEach(function(it,i){var n=i+1,card=el("div",{className:"ph"+(it.np?" np":"")}),img=el("img",{src:thumbOf(it.src),alt:"",loading:"lazy"});
@@ -376,17 +421,39 @@
         m.className="msg ok";m.textContent="Added at the end. Use the arrows to move them, then press Save.";}).catch(function(e){fail(m,e);});}));}
 
   // ---------- Vintage Prints ----------
-  function drawVintage(){var box=$("t-vintage"),m=$("m-vintage"),L=doc.vintage;box.innerHTML="";
-    var dl=$("v-decades");dl.innerHTML="";decadeList().forEach(function(d){dl.appendChild(el("option",{value:d}));});
+  function sortVintage(){var G=doc.vgroups,L=doc.vintage,ix=function(v){var k=G.indexOf(v.decade);return k<0?G.length:k;};
+    var s2=L.map(function(v,i){return [ix(v),i,v];}).sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});s2.forEach(function(x,i){L[i]=x[2];});}
+  function drawGroups(){var box=$("v-groups"),G=doc.vgroups;box.innerHTML="";
+    var count=function(g){return doc.vintage.filter(function(v){return v.decade==g;}).length;};
+    var list=el("div");
+    G.forEach(function(g,i){var n=count(g);
+      var mv=function(d){var j=i+d;if(j<0||j>=G.length)return;G[i]=G[j];G[j]=g;setDirty(true);drawVintage();};
+      list.appendChild(el("div",{className:"grow"},[
+        el("input",{type:"text",value:g,"aria-label":"Series name",onchange:function(e){var nn=groupName(e.target.value);
+          if(!nn||(nn!=g&&G.indexOf(nn)>=0)){alert(nn?"There is already a series called \""+nn+"\".":"A series needs a name.");e.target.value=g;return;}
+          doc.vintage.forEach(function(v){if(v.decade==g)v.decade=nn;});G[i]=nn;setDirty(true);drawVintage();}}),
+        el("span",{className:"hint",style:"margin:0",text:n+" print"+(n==1?"":"s")}),
+        el("button",{type:"button",title:"Move up",text:"\u2191",disabled:i==0,onclick:function(){mv(-1);}}),
+        el("button",{type:"button",title:"Move down",text:"\u2193",disabled:i==G.length-1,onclick:function(){mv(1);}}),
+        el("button",{type:"button",className:"del",text:"Delete",disabled:G.length==1,onclick:function(){
+          if(!confirm("Delete the series \""+g+"\""+(n?" and its "+n+" print"+(n==1?"":"s"):"")+"?\n\nIt comes off the website when you press Save. After saving, you can bring it back from Earlier versions."))return;
+          doc.vintage=doc.vintage.filter(function(v){return v.decade!=g;});G.splice(i,1);setDirty(true);drawVintage();}})]));});
+    box.appendChild(el("div",{className:"card"},[el("h3",{text:"Vintage series"}),
+      el("p",{className:"hint",style:"margin:0 0 10px",text:"These are the headings on the Vintage Prints page, in this order (for example decades). Rename one by typing over it. A series with no prints is not shown on the site."}),
+      list,el("button",{type:"button",className:"link",text:"+ Add a series",onclick:function(){var nn=groupName(prompt("Name of the new vintage series (for example 2010s):")||"");if(!nn)return;
+        if(G.indexOf(nn)>=0){alert("There is already a series called \""+nn+"\".");return;}G.push(nn);setDirty(true);drawVintage();}})]));}
+  function drawVintage(){var box=$("t-vintage"),m=$("m-vintage");sortVintage();var L=doc.vintage;box.innerHTML="";drawGroups();
     L.forEach(function(v,i){var img=el("img",{src:thumbOf(v.src),alt:""});
+      if(i==0||L[i-1].decade!=v.decade)box.appendChild(el("h2",{className:"ghead",text:v.decade||"No series chosen"}));
       var replace=fileButton("Replace photo\u2026",false,function(fs){busy(m,"Uploading\u2026");upload(fs[0],"vintage").then(function(url){v.src=url;img.src=thumbOf(url);setDirty(true);m.className="msg ok";m.textContent="Photo replaced. Press Save to put it on the site.";}).catch(function(e){fail(m,e);});});
       var f=function(label,key,attrs){attrs=attrs||{};attrs.value=v[key]==null?"":v[key];attrs.oninput=function(e){v[key]=attrs.type=="number"?(e.target.value===""?"":+e.target.value):e.target.value;setDirty(true);};
         return [el("label",{text:label}),el(attrs.tag||"input",attrs)];};
       var chk=function(label,key){return el("label",{className:"chk"},[el("input",{type:"checkbox",checked:!!v[key],onchange:function(e){v[key]=e.target.checked;setDirty(true);}}),el("span",{text:" "+label})]);};
       var two=function(a,b){var w=function(x){return Array.isArray(x)?el("div",{},x):x;};return el("div",{className:"two"},[w(a),w(b)]);};
-      var yr=f("Year taken","year",{type:"text",placeholder:"e.g. 1993"}),dec=f("Decade (groups the page)","decade",{type:"text",list:"v-decades",placeholder:"e.g. 1990s"});
-      yr[1].addEventListener("input",function(e){var y=String(e.target.value).match(/\b(19|20)\d\d\b/);if(y&&auto){v.decade=y[0].slice(0,3)+"0s";dec[1].value=v.decade;}});
-      var auto=!v.decade;dec[1].addEventListener("input",function(){auto=false;});
+      var yr=f("Year taken","year",{type:"text",placeholder:"e.g. 1993"}),sel=el("select",{onchange:function(e){v.decade=e.target.value;setDirty(true);drawVintage();}});
+      sel.appendChild(el("option",{value:"",text:"Choose\u2026"}));doc.vgroups.forEach(function(g){sel.appendChild(el("option",{value:g,text:g}));});sel.value=v.decade||"";
+      var dec=[el("label",{text:"Series (heading on the page)"}),sel];
+      yr[1].addEventListener("input",function(e){var y=String(e.target.value).match(/\b(19|20)\d\d\b/),g=y&&y[0].slice(0,3)+"0s";if(g&&!v.decade&&doc.vgroups.indexOf(g)>=0){v.decade=g;sel.value=g;}});
       box.appendChild(el("div",{className:"card vrow"},[el("div",{},[img,replace]),
         el("div",{},[].concat(f("Title","title",{type:"text",placeholder:"e.g. Steps, Simeiz"}),
           two(yr,dec),
@@ -398,11 +465,10 @@
           f("Condition","condition",{type:"text",placeholder:"e.g. Excellent, no marks"}),
           f("Notes (optional, shown under the details)","desc",{tag:"textarea",style:"min-height:60px"}),
           el("div",{className:"vsize"},[el("p",{className:"hint",text:"Each vintage print is sold in its one size only. Buyers see this size and price, with no size choice."}),two(f("Size (the only size)","size",{type:"text",placeholder:"e.g. 38 x 50.5 cm (15 x 20 in)"}),f("Price ($, leave empty if not set yet)","price",{type:"number",min:"0",step:"1"}))]),
-          el("div",{className:"acts",style:"margin-top:12px"},moveBtns(L,i,drawVintage,"\""+(v.title||"this print")+"\""))))]));});
+          el("div",{className:"acts",style:"margin-top:12px"},moveBtns(L,i,drawVintage,"\""+(v.title||"this print")+"\"",function(j){return j>=0&&j<L.length&&L[j].decade==v.decade;}))))]));});
     var add=$("v-add");add.innerHTML="";add.appendChild(fileButton("Add vintage prints\u2026",true,function(fs){busy(m,"Uploading "+fs.length+" photo"+(fs.length>1?"s":"")+"\u2026");
-      Promise.all(fs.map(function(f){return upload(f,"vintage").then(function(u){return {decade:L.length?L[L.length-1].decade:"",src:u,title:fileTitle(f),year:"",desc:"",price:"",signed:true,coa:true,framed:false};});}))
+      Promise.all(fs.map(function(f){return upload(f,"vintage").then(function(u){return {decade:L.length?L[L.length-1].decade:(doc.vgroups[0]||""),src:u,title:fileTitle(f),year:"",desc:"",price:"",signed:true,coa:true,framed:false};});}))
         .then(function(a){a.forEach(function(x){L.push(x);});setDirty(true);drawVintage();m.className="msg ok";m.textContent="Added at the end. Fill in the details, then press Save.";}).catch(function(e){fail(m,e);});}));}
-  function decadeList(){var a=DECADES.slice();doc.vintage.forEach(function(v){if(v.decade&&a.indexOf(v.decade)<0)a.push(v.decade);});return a.sort();}
   $("ph-series").addEventListener("change",drawPhotos);
   $("ph-numtitle").addEventListener("change",function(e){doc.numberWithTitle=e.target.checked;setDirty(true);});
 
@@ -438,22 +504,27 @@
           el("button",{type:"button",className:"x",title:"Remove this logo",text:"\u2715",onclick:function(){if(confirm("Remove the "+(l.alt||"")+" logo?")){L.splice(i,1);setDirty(true);drawLogos();}}}),
           el("button",{type:"button",title:"Move later",text:"\u2192",disabled:i==L.length-1,onclick:function(){mv(1);}})])]));});}
 
-  function drawAll(){drawPrices();drawSeries();drawPhotos();drawVintage();drawSimple();$("b-portrait").src=doc.bio.portrait;drawLogos();}
+  function drawAll(){fillSeriesSelect();drawPrices();drawSeries();drawPhotos();drawVintage();drawSimple();$("b-portrait").src=doc.bio.portrait;drawLogos();}
 
   // ---------- Save ----------
   function cleaned(){var d=clone(doc),problems=[];
+    var LS=liveSets(),keep=function(o){var r={};LS.forEach(function(s){if(o&&o.hasOwnProperty(s.slug))r[s.slug]=o[s.slug];});return r;};
+    d.series=keep(d.series);d.prices=keep(d.prices);d.seriesOrder=d.order;delete d.order;
+    d.vintageGroups=d.vgroups;delete d.vgroups;
+    if(!LS.length)problems.push("The site needs at least one series.");
     d.photos={};d.titles={};d.noprint={};
-    SETS.forEach(function(s){var L=d.items[s.slug],srcs=L.map(function(it){return it.src;}),t={},np=[];
+    LS.forEach(function(s){var L=d.items[s.slug],srcs=L.map(function(it){return it.src;}),t={},np=[];
       L.forEach(function(it,i){if(String(it.title).trim())t[i+1]=String(it.title).trim();if(it.np)np.push(i+1);});
       if(!L.length)problems.push(s.name+" needs at least one photo.");
       if(JSON.stringify(srcs)!=JSON.stringify(DEFAULTS.photos[s.slug]))d.photos[s.slug]=srcs;d.titles[s.slug]=t;d.noprint[s.slug]=np;});
     delete d.items;
-    d.vintage.forEach(function(v){["printed","code","front","verso","paper","size","condition"].forEach(function(k){if(k in v){v[k]=String(v[k]||"").trim();if(!v[k])delete v[k];}});v.title=String(v.title||"").trim();v.decade=String(v.decade||"").trim();if(!v.title||!v.decade)problems.push("Every vintage print needs a title and a decade.");
+    d.vintage.forEach(function(v){["printed","code","front","verso","paper","size","condition"].forEach(function(k){if(k in v){v[k]=String(v[k]||"").trim();if(!v[k])delete v[k];}});v.title=String(v.title||"").trim();v.decade=String(v.decade||"").trim();if(!v.title||!v.decade)problems.push("Every vintage print needs a title and a series.");
       if(v.price!==""&&!(+v.price>0))problems.push("Vintage prices must be more than $0, or left empty.");});
     if(JSON.stringify(d.vintage)==JSON.stringify(DEFAULTS.vintage))delete d.vintage;
-    SETS.forEach(function(s){d.prices[s.slug]=(d.prices[s.slug]||[]).filter(function(r){return String(r[0]).trim()||r[1]!=="";}).map(function(r){
+    LS.forEach(function(s){d.series[s.slug].name=String(d.series[s.slug].name||"").trim();d.prices[s.slug]=(d.prices[s.slug]||[]).filter(function(r){return String(r[0]).trim()||r[1]!=="";}).map(function(r){
         if(!String(r[0]).trim()||!(+r[1]>0))problems.push(s.name+": every size needs both a size and a price.");return [String(r[0]).trim(),+r[1]];});
-      if(!String(d.series[s.slug].name||"").trim())problems.push("Every series needs a name.");});
+      if(!d.series[s.slug].name)problems.push("Every series needs a name.");
+      if(!d.prices[s.slug].length)problems.push(s.name+" needs at least one size and price (in Sizes & prices).");});
     if(!/^\S+@\S+\.\S+$/.test(d.contact.email))problems.push("The contact email doesn't look right.");
     return {doc:d,problems:problems.filter(function(p,i,a){return a.indexOf(p)==i;})};}
   $("save").addEventListener("click",function(){var c=cleaned(),m=$("m-save");
@@ -575,7 +646,6 @@
       Promise.all([loadDefaults(),sb.from("site_content").select("value").eq("key","site").maybeSingle()]).then(function(a){
         if(a[1].error)throw a[1].error;
         doc=merge(a[1].data&&a[1].data.value);
-        var sel=$("ph-series");sel.innerHTML="";SETS.forEach(function(s){sel.appendChild(el("option",{value:s.slug,text:s.name}));});
         drawAll();setDirty(false);view("v-app");
         showHome();
       }).catch(function(e){view("v-loading");$("v-loading").innerHTML="";$("v-loading").appendChild(el("p",{className:"msg err",text:"Something went wrong loading the editor: "+(e.message||e)}));});});}
