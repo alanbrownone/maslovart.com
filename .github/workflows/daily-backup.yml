@@ -1,0 +1,58 @@
+# Daily backup of the site's editable content (everything saved in the admin) and the photos it uses.
+# Runs every night and saves a dated copy to the "backups" branch of this repository.
+name: Daily backup
+
+on:
+  schedule:
+    - cron: "15 7 * * *"   # every day at 7:15 UTC (2:15 am in New York in winter)
+  workflow_dispatch: {}     # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      SUPA_URL: https://umuzvxsnbnunnsfnjuim.supabase.co
+      # Public (anon) key, the same one already in the website's pages. It can only read public content.
+      SUPA_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtdXp2eHNuYm51bm5zZm5qdWltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwMTg5MjksImV4cCI6MjEwOTU5NDkyOX0.dyjH8hFdmgtAt3_bnOPs3EfIAG-cbq_ZN7LOVWRTGj4
+    steps:
+      - name: Check out the backups branch (create it the first time)
+        run: |
+          git init -q backup && cd backup
+          git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          if git fetch -q --depth 1 origin backups; then git checkout -q -b backups FETCH_HEAD; else git checkout -q --orphan backups; fi
+          git config user.name "Daily backup"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: Save the site content
+        working-directory: backup
+        run: |
+          DAY=$(date -u +%Y-%m-%d)
+          mkdir -p "content"
+          curl -fsS "$SUPA_URL/rest/v1/site_content?select=key,value,updated_at,updated_by" \
+            -H "apikey: $SUPA_KEY" -H "Authorization: Bearer $SUPA_KEY" | python3 -m json.tool > "content/$DAY.json"
+          cp "content/$DAY.json" latest.json
+          # Keep the last 90 daily copies
+          ls content/*.json | sort | head -n -90 | xargs -r git rm -q --cached --ignore-unmatch
+          ls content/*.json | sort | head -n -90 | xargs -r rm -f
+
+      - name: Save the photos the content uses (only new ones are downloaded)
+        working-directory: backup
+        run: |
+          mkdir -p photos
+          grep -o 'https://res.cloudinary.com/[^"\\ ]*' latest.json | sort -u > photos/list.txt || true
+          while read -r url; do
+            name=$(echo "$url" | sed 's#^https://res.cloudinary.com/##; s#[^A-Za-z0-9._-]#_#g')
+            [ -f "photos/$name" ] || curl -fsS -o "photos/$name" "$url" || echo "Could not download $url"
+          done < photos/list.txt
+
+      - name: Commit and push
+        working-directory: backup
+        run: |
+          printf 'Daily backups of maslovart.com content (latest.json, content/DATE.json) and the photos it uses (photos/).\nMade by .github/workflows/daily-backup.yml on the main branch.\n' > README.md
+          git add -A
+          git diff --cached --quiet && { echo "Nothing changed"; exit 0; }
+          git commit -q -m "Backup $(date -u +%Y-%m-%d)"
+          git push -q origin backups

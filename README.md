@@ -41,3 +41,10 @@ reached, the site simply shows the built-in values. Only emails listed in the `a
 
 Photo uploads go to Guennadi's Cloudinary account (cloud `dniry2qgz`, folder `maslovart/`). The admin page asks
 the Supabase helper `cloudinary-sign` for permission first; it only says yes to people on the admins list.
+
+## Backups
+
+- **Database (Supabase):** the Pro plan takes an automatic backup of the whole database every day (kept 7 days). It covers content, messages, mailing list and users. Restore from Supabase dashboard > Database > Backups.
+- **Every save in the admin** is also kept in "Earlier versions" (table `site_content_history`).
+- **Daily off-site copy:** `.github/workflows/daily-backup.yml` runs every night. It saves the site content as JSON plus every Cloudinary photo it uses to the `backups` branch of this repo (last 90 days of content). Run it by hand from the GitHub Actions tab.
+- Photos stored in `images/` are part of this repo, so GitHub keeps every version of them.
