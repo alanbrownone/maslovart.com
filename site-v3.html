@@ -444,14 +444,24 @@
   function plain(s){return String(s==null?"":s).replace(/[<>]/g,"");}
   function paras(a){return (a||[]).filter(function(p){return String(p).trim();});}
   function applyCMS(c){if(!c||typeof c!="object")return;
+    // Series added, removed or reordered in the admin. A new series needs at least one photo to show.
+    if(Array.isArray(c.seriesOrder)&&c.series){var NS=[];c.seriesOrder.forEach(function(sl){if(!/^[a-z0-9-]{1,60}$/.test(sl)||NS.some(function(x){return x.slug==sl;}))return;
+        var st=findSet(sl);if(!st){var ph=c.photos&&c.photos[sl];if(!c.series[sl]||!Array.isArray(ph)||!ph.filter(safeSrc).length)return;st={slug:sl,name:"",intro:[],count:0};}NS.push(st);});
+      if(NS.length)SETS=NS;}
     if(c.series)SETS.forEach(function(st){var o=c.series[st.slug];if(!o)return;
+      if(o.ratio!=null){if(o.ratio=="5/4"||o.ratio=="3/1")RATIO[st.slug]=o.ratio;else delete RATIO[st.slug];}
       if(o.name)st.name=plain(o.name);if(o.intro)st.intro=paras(o.intro).map(rich);if(o.by!=null)st.by=plain(o.by);});
     if(c.photos)SETS.forEach(function(st){var a=c.photos[st.slug];if(Array.isArray(a)){a=a.filter(safeSrc);if(a.length){st.photos=a;st.count=a.length;}}});
     if(Array.isArray(c.vintage)){VINTAGE=c.vintage.filter(function(v){return v&&safeSrc(v.src)&&v.decade;}).map(function(v){var m=String(v.src).match(/^(images\/.+)\/([^\/]+)$/);
-        return {decade:String(v.decade).replace(/[^\w\s-]/g,"").trim(),img:cld(v.src,"c_limit,w_2000,f_auto,q_auto"),thumb:m?m[1]+"/thumbs/"+m[2]:cld(v.src,"c_limit,w_700,f_auto,q_auto"),
+        return {decade:String(v.decade).replace(/[^\w\s-]/g,"").replace(/\s+/g," ").trim(),img:cld(v.src,"c_limit,w_2000,f_auto,q_auto"),thumb:m?m[1]+"/thumbs/"+m[2]:cld(v.src,"c_limit,w_700,f_auto,q_auto"),
           title:plain(v.title),year:plain(v.year)||"&hellip;",desc:plain(v.desc),price:+v.price>0?+v.price:"",
           printed:plain(v.printed),code:plain(v.code),front:plain(v.front),verso:plain(v.verso),paper:plain(v.paper),size:plain(v.size),condition:plain(v.condition),framing:typeof v.framed=="boolean"?(v.framed?"Framed":"Unframed"):"",signed:v.signed===true,coa:v.coa===true};});
-      DECADES=[];VINTAGE.forEach(function(v){if(DECADES.indexOf(v.decade)<0)DECADES.push(v.decade);});DECADES.sort();fillVintageList();}
+      DECADES=[];VINTAGE.forEach(function(v){if(DECADES.indexOf(v.decade)<0)DECADES.push(v.decade);});DECADES.sort();
+      // Headings in the order chosen in the admin; prints follow the same order for Previous / Next
+      if(Array.isArray(c.vintageGroups)){var G=c.vintageGroups.map(function(g){return String(g).replace(/[^\w\s-]/g,"").replace(/\s+/g," ").trim();});
+        DECADES=G.filter(function(g,i){return g&&G.indexOf(g)==i&&DECADES.indexOf(g)>=0;}).concat(DECADES.filter(function(g){return G.indexOf(g)<0;}));}
+      VINTAGE=VINTAGE.map(function(v,i){return [DECADES.indexOf(v.decade),i,v];}).sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}).map(function(x){return x[2];});
+      fillVintageList();}
     if(c.prices)Object.keys(c.prices).forEach(function(k){var z=(c.prices[k]||[]).filter(function(r){return r&&String(r[0]).trim()&&+r[1]>0;});PRICES[k]=z.map(function(r){return [plain(r[0]),+r[1]];});});
     if(c.titles){TITLES={};Object.keys(c.titles).forEach(function(k){var t={};Object.keys(c.titles[k]||{}).forEach(function(n){if(String(c.titles[k][n]).trim())t[n]=plain(c.titles[k][n]);});TITLES[k]=t;});}
     if(typeof c.numberWithTitle=="boolean")NUMBER_WITH_TITLE=c.numberWithTitle;
