@@ -31,7 +31,7 @@ jobs:
         run: |
           DAY=$(date -u +%Y-%m-%d)
           mkdir -p "content"
-          curl -fsS "$SUPA_URL/rest/v1/site_content?select=key,value,updated_at,updated_by" \
+          curl -fsS "$SUPA_URL/rest/v1/site_content?select=key,value,updated_at" \
             -H "apikey: $SUPA_KEY" -H "Authorization: Bearer $SUPA_KEY" | python3 -m json.tool > "content/$DAY.json"
           cp "content/$DAY.json" latest.json
           # Keep the last 90 daily copies
