@@ -31,6 +31,13 @@
   .hint{font-size:12.5px;color:#777;margin:4px 0 0;}
   .msg{margin-top:12px;font-size:14px;}
   .msg.err{color:var(--red);} .msg.ok{color:var(--teal);}
+  .homeh{font:600 22px Georgia,"Times New Roman",serif;margin:4px 0 18px;}
+  .homegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .homegrid button{text-align:left;padding:18px 20px;border-radius:12px;background:#fff;border:1px solid var(--line);font-weight:400;display:flex;flex-direction:column;gap:6px;min-height:104px;}
+  .homegrid button:hover{border-color:var(--teal);box-shadow:0 2px 10px rgba(0,0,0,.06);}
+  .homegrid b{font:600 18px Georgia,"Times New Roman",serif;color:var(--ink);} .homegrid span{font-size:14px;color:#666;line-height:1.4;}
+  .crumb{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;} .crumb h2{margin:0;font:600 22px Georgia,"Times New Roman",serif;}
+  .tabs:empty{display:none;}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
   .tabs button{border-radius:20px;font-weight:500;}
   .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
@@ -62,6 +69,7 @@
   .vrow label:first-child{margin-top:0;}
   .vrow .acts{display:flex;justify-content:space-between;gap:8px;}
   .chks{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;} label.chk{display:flex;align-items:center;gap:6px;margin:0;font-weight:400;cursor:pointer;} label.chk input{width:auto;margin:0;}
+  .vsize{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:4px 14px 14px;margin-top:14px;} .vsize .hint{margin:10px 0 0;}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   @media (max-width:600px){.vrow{grid-template-columns:1fr;} .vrow img{max-width:240px;}}
   .ph .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:#555;margin-top:6px;font-weight:500;}
@@ -125,7 +133,14 @@
 
   <!-- The editor -->
   <div id="v-app" class="hidden">
-    <div class="tabs" id="tabs"></div>
+    <div id="home">
+      <h2 class="homeh">What would you like to work on?</h2>
+      <div class="homegrid" id="homegrid"></div>
+    </div>
+    <div id="area" class="hidden">
+      <div class="crumb"><button type="button" id="go-home">&larr; Admin home</button><h2 id="area-title"></h2></div>
+      <div class="tabs" id="tabs"></div>
+    </div>
 
     <section data-tab="prices">
       <p class="intro">Print sizes and prices for each series. They show on the New Prints pages and under each Portfolio photo. Leave a row empty to remove it.</p>
@@ -290,11 +305,27 @@
   window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
 
   // ---------- tabs ----------
-  var TABS=[["prices","Prices & sizes"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["subscribers","Mailing list"],["team","Users"],["history","Earlier versions"]];
-  function showTab(t){document.querySelectorAll("#v-app section").forEach(function(s){s.classList.toggle("hidden",s.dataset.tab!=t);});
-    document.querySelectorAll("#tabs button").forEach(function(b){b.classList.toggle("on",b.dataset.t==t);});
-    if(t=="history")loadHistory();if(t=="messages")loadMessages();if(t=="subscribers")loadSubs();if(t=="team")loadTeam();try{sessionStorage.setItem("admintab",t);}catch(e){}}
-  TABS.forEach(function(t){$("tabs").appendChild(el("button",{type:"button","data-t":t[0],text:t[1],onclick:function(){showTab(t[0]);}}));});
+  var TABS=[["prices","Sizes & prices"],["series","Series text"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["subscribers","Mailing list"],["team","Users"],["history","Earlier versions"]];
+  // The admin home screen: one button per area. An area with several parts gets small tabs inside it.
+  var AREAS=[
+    {id:"newprints",title:"New Prints",desc:"Sizes and prices, series names and text, and the photos in each series.",tabs:["prices","series","photos"]},
+    {id:"vintage",title:"Vintage Prints",desc:"One-of-a-kind vintage prints: photo, details, size and price.",tabs:["vintage"]},
+    {id:"bio",title:"The Artist",desc:"Introduction, statement, biography, portrait and venue logos.",tabs:["bio"]},
+    {id:"contact",title:"Contact",desc:"Phone and email shown on the Contact page.",tabs:["contact"]},
+    {id:"messages",title:"Messages",desc:"Messages sent from the Contact form.",tabs:["messages"]},
+    {id:"subscribers",title:"Mailing list",desc:"People who signed up for the mailing list.",tabs:["subscribers"]},
+    {id:"team",title:"Users",desc:"Who can sign in, their roles, and passwords.",tabs:["team"]},
+    {id:"history",title:"Earlier versions",desc:"Bring back how the site looked before a save.",tabs:["history"]}];
+  function tabName(t){for(var i=0;i<TABS.length;i++)if(TABS[i][0]==t)return TABS[i][1];return t;}
+  function areaOf(t){for(var i=0;i<AREAS.length;i++)if(AREAS[i].tabs.indexOf(t)>=0)return AREAS[i];return AREAS[0];}
+  function showHome(){$("home").classList.remove("hidden");$("area").classList.add("hidden");
+    document.querySelectorAll("#v-app section").forEach(function(s){s.classList.add("hidden");});window.scrollTo(0,0);}
+  function showTab(t){var a=areaOf(t);$("home").classList.add("hidden");$("area").classList.remove("hidden");$("area-title").textContent=a.title;
+    var tb=$("tabs");tb.innerHTML="";if(a.tabs.length>1)a.tabs.forEach(function(x){tb.appendChild(el("button",{type:"button","data-t":x,text:tabName(x),className:x==t?"on":"",onclick:function(){showTab(x);}}));});
+    document.querySelectorAll("#v-app section").forEach(function(s){s.classList.toggle("hidden",s.dataset.tab!=t);});
+    if(t=="history")loadHistory();if(t=="messages")loadMessages();if(t=="subscribers")loadSubs();if(t=="team")loadTeam();window.scrollTo(0,0);}
+  AREAS.forEach(function(a){$("homegrid").appendChild(el("button",{type:"button","data-area":a.id,onclick:function(){showTab(a.tabs[0]);}},[el("b",{text:a.title}),el("span",{text:a.desc})]));});
+  $("go-home").addEventListener("click",showHome);
 
   // ---------- Prices ----------
   function drawPrices(){var box=$("t-prices");box.innerHTML="";
@@ -360,11 +391,12 @@
           two(f("Year printed","printed",{type:"text",placeholder:"e.g. 1995"}),f("Inventory number","code",{type:"text",placeholder:"e.g. 300_1131 MO"})),
           f("Handwriting on front","front",{type:"text",placeholder:"e.g. Guennadi Maslov '95"}),
           f("Handwriting on back (verso)","verso",{type:"text",placeholder:"e.g. Guennadi Maslov  June 25 - July 6, 1993  Simeiz, Crimea, USSR"}),
-          two(f("Paper / process","paper",{type:"text",placeholder:"e.g. Gelatin silver print, archival"}),f("Size","size",{type:"text",placeholder:"e.g. 38 x 50.5 cm (15 x 20 in)"})),
+          f("Paper / process","paper",{type:"text",placeholder:"e.g. Gelatin silver print, archival"}),
           el("div",{className:"chks"},[chk("Signed by the artist","signed"),chk("Certificate of authenticity enclosed","coa"),chk("Framed (leave unchecked if unframed)","framed")]),
           f("Condition","condition",{type:"text",placeholder:"e.g. Excellent, no marks"}),
           f("Notes (optional, shown under the details)","desc",{tag:"textarea",style:"min-height:60px"}),
-          two(f("Price ($, leave empty if not set yet)","price",{type:"number",min:"0",step:"1"}),el("div",{className:"acts",style:"align-self:end"},moveBtns(L,i,drawVintage,"\""+(v.title||"this print")+"\"")))))]));});
+          el("div",{className:"vsize"},[el("p",{className:"hint",text:"Each vintage print is sold in its one size only. Buyers see this size and price, with no size choice."}),two(f("Size (the only size)","size",{type:"text",placeholder:"e.g. 38 x 50.5 cm (15 x 20 in)"}),f("Price ($, leave empty if not set yet)","price",{type:"number",min:"0",step:"1"}))]),
+          el("div",{className:"acts",style:"margin-top:12px"},moveBtns(L,i,drawVintage,"\""+(v.title||"this print")+"\""))))]));});
     var add=$("v-add");add.innerHTML="";add.appendChild(fileButton("Add vintage prints\u2026",true,function(fs){busy(m,"Uploading "+fs.length+" photo"+(fs.length>1?"s":"")+"\u2026");
       Promise.all(fs.map(function(f){return upload(f,"vintage").then(function(u){return {decade:L.length?L[L.length-1].decade:"",src:u,title:fileTitle(f),year:"",desc:"",price:"",signed:true,coa:true,framed:false};});}))
         .then(function(a){a.forEach(function(x){L.push(x);});setDirty(true);drawVintage();m.className="msg ok";m.textContent="Added at the end. Fill in the details, then press Save.";}).catch(function(e){fail(m,e);});}));}
@@ -543,7 +575,7 @@
         doc=merge(a[1].data&&a[1].data.value);
         var sel=$("ph-series");sel.innerHTML="";SETS.forEach(function(s){sel.appendChild(el("option",{value:s.slug,text:s.name}));});
         drawAll();setDirty(false);view("v-app");
-        var t="prices";try{t=sessionStorage.getItem("admintab")||t;}catch(e){}showTab(t);
+        showHome();
       }).catch(function(e){view("v-loading");$("v-loading").innerHTML="";$("v-loading").appendChild(el("p",{className:"msg err",text:"Something went wrong loading the editor: "+(e.message||e)}));});});}
 
   if(/type=invite/.test(startHash)){$("r-head").textContent="Welcome! Choose a password for the admin";}

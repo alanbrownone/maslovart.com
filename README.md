@@ -23,6 +23,8 @@ The list of sets (names, intro text, photo counts) is the `SETS` list near the b
 
 ## Admin page
 
+After signing in, the admin opens on a home screen with one button per area (New Prints, Vintage Prints, The Artist, Contact, Messages, Mailing list, Users, Earlier versions). "Admin home" goes back to it. New Prints has three tabs inside (Sizes & prices, Series text, Photos). Each vintage print has exactly one size and price.
+
 Users: the **Users** tab lists everyone who can sign in (Supabase table `admins`: email, first/last name, phone, role).
 Two roles: **Admin** (everything, including adding/removing team members) and **Site Manager** (everything except the team).
 Adding someone runs the Supabase edge function `team`, which sends them an invitation email to choose a password. Everyone can change their own password there; Admins can also set anyone's password.

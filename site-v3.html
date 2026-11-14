@@ -78,6 +78,7 @@
   .one select{width:100%;max-width:320px;padding:11px 12px;font-size:15px;border:1px solid #bdbdb8;border-radius:6px;background:#fff;font-family:inherit;}
   .one .price{font-size:20px;font-weight:600;margin:14px 0 4px;min-height:26px;} .one .buy{width:100%;max-width:320px;margin-top:8px;} .one .buy:disabled{background:#b9c9c5;cursor:not-allowed;}
   .vdec{margin:34px 0 0;} .vdec h2{font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal2);margin:0 0 16px;font-weight:700;} .vdec:first-of-type{margin-top:0;}
+  .vosize{font-size:15px;color:#333;margin:0 0 4px;} .vosize:empty{display:none;}
   .vodl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;max-width:560px;margin:4px auto 16px;text-align:left;font-size:14px;line-height:1.5;color:#333;} .vodl dt{color:#777;text-transform:uppercase;letter-spacing:.08em;font-size:11px;padding-top:3px;} .vodl dd{margin:0;} .vodl:empty{display:none;}
   @media (max-width:600px){.vodl{grid-template-columns:1fr;gap:0;} .vodl dd{margin-bottom:8px;}}
   .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 24px;} .vgrid .card .ph{aspect-ratio:1/1;border:1px solid #d9d9d5;} .vcap{margin-top:9px;font-size:14px;line-height:1.45;color:#444;} .vcap b{display:block;font-size:15px;color:#1d1d1b;} .vcap .vp{font-weight:600;color:#1d1d1b;margin-top:2px;}
@@ -228,6 +229,7 @@
     <p class="by" id="voby"></p>
     <dl class="vodl" id="vodl"></dl>
     <p id="vodesc" style="font-size:15px;line-height:1.6;color:#444;margin:0 0 10px"></p>
+    <p class="vosize" id="vosize"></p>
     <div class="price" id="voprice"></div>
     <button class="buy" id="vobuy" type="button">Purchase</button>
     <div class="msg" id="vomsg"></div>
@@ -384,15 +386,15 @@
   function vprice(v){return v.price?"$"+v.price:"Price to be added";}
   function fillVintageList(){var nav="",h="";DECADES.forEach(function(d){nav+='<a href="#vd-'+d+'" onclick="document.getElementById(\'vd-'+d+'\').scrollIntoView({behavior:\'smooth\'});return false;">'+d+'</a>';
       h+='<div class="vdec" id="vd-'+d+'"><h2>'+d+'</h2><div class="vgrid">';
-      VINTAGE.forEach(function(v,i){if(v.decade!=d)return;h+='<a class="card" href="#/prints/vintage/'+(i+1)+'"><div class="ph" style="background-image:url('+v.thumb+')"></div><div class="vcap"><b>'+v.title+'</b>Created '+v.year+'<br>'+v.desc+'<div class="vp">'+vprice(v)+'</div></div></a>';});
+      VINTAGE.forEach(function(v,i){if(v.decade!=d)return;h+='<a class="card" href="#/prints/vintage/'+(i+1)+'"><div class="ph" style="background-image:url('+v.thumb+')"></div><div class="vcap"><b>'+v.title+'</b>Created '+v.year+'<br>'+(v.size?esc(v.size)+'<br>':'')+v.desc+'<div class="vp">'+vprice(v)+'</div></div></a>';});
       h+='</div></div>';});
     document.getElementById("vpdecnav").innerHTML=nav;document.getElementById("vplist").innerHTML=h;}
   function fillVintage(n){var v=VINTAGE[n-1],N=VINTAGE.length;var dl=document.getElementById("vodec");dl.textContent=v.decade;dl.href="#/prints/vintage";
     var im=document.getElementById("voimg");im.src=v.img;im.alt=v.title;document.getElementById("votitle").textContent=v.title;askBox("askvo","Vintage Prints",v.title+", "+v.decade,[["Print",v.title],["Decade",v.decade],["Image",n+" of "+N]]);
     document.getElementById("voby").innerHTML="Guennadi Maslov &middot; vintage print &middot; "+(v.printed?"taken ":"created ")+v.year+(v.printed?" &middot; printed "+esc(v.printed):"");document.getElementById("vodesc").textContent=v.desc||"";
     var auth=[v.signed?"Signed by the artist":"",v.coa?"Certificate of authenticity enclosed":""].filter(Boolean).join(". ");
-    document.getElementById("vodl").innerHTML=[["Paper",v.paper],["Size",v.size],["Front",v.front],["Back",v.verso],["Authenticity",auth],["Condition",v.condition],["Framing",v.framing],["Inventory no.",v.code]].filter(function(r){return r[1];}).map(function(r){return "<dt>"+r[0]+"</dt><dd>"+esc(r[1])+"</dd>";}).join("");
-    document.getElementById("voprice").textContent=vprice(v);document.getElementById("vomsg").textContent="";document.getElementById("vocount").textContent="Print "+n+" of "+N;
+    document.getElementById("vodl").innerHTML=[["Paper",v.paper],["Front",v.front],["Back",v.verso],["Authenticity",auth],["Condition",v.condition],["Framing",v.framing],["Inventory no.",v.code]].filter(function(r){return r[1];}).map(function(r){return "<dt>"+r[0]+"</dt><dd>"+esc(r[1])+"</dd>";}).join("");
+    document.getElementById("voprice").textContent=vprice(v);var vs=document.getElementById("vosize");vs.innerHTML=v.size?"Size: <b>"+esc(v.size)+"</b> &middot; one size only":"";document.getElementById("vomsg").textContent="";document.getElementById("vocount").textContent="Print "+n+" of "+N;
     document.getElementById("voprev").href="#/prints/vintage/"+(n>1?n-1:N);document.getElementById("vonext").href="#/prints/vintage/"+(n<N?n+1:1);}
   fillVintageList();
   document.getElementById("vobuy").addEventListener("click",function(){document.getElementById("vomsg").textContent="Added to your cart. (Preview only: checkout comes later.)";});
