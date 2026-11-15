@@ -40,7 +40,8 @@ function returnPage(v: unknown): URL | null {
   try {
     const u = new URL(String(v));
     const extra = (Deno.env.get("SITE_ORIGINS") || "").split(",").map((s) => s.trim()).filter(Boolean);
-    if (![...ORIGINS, ...extra].includes(u.origin)) return null;
+    const preview = /^https:\/\/deploy-preview-\d+--maslov-art-homepage\.netlify\.app$/.test(u.origin);
+    if (!preview && ![...ORIGINS, ...extra].includes(u.origin)) return null;
     if (!/^\/([\w-]+\.html)?$/.test(u.pathname)) return null;
     u.search = ""; u.hash = "";
     return u;
