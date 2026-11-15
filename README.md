@@ -58,7 +58,7 @@ charge per order, set in admin > Orders > Shipping). After payment Stripe calls 
 `stripe-webhook`, which saves the order (table `orders`, shown in admin > Orders), marks vintage prints as
 sold (table `vintage_sold`, the site then shows "Sold"), and emails the buyer and Guennadi through Resend.
 
-Secrets (Supabase > Edge Functions > Secrets): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, plus the
+Secrets (Supabase > Edge Functions > Secrets): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, optional `STRIPE_TAX` = `on` (sales tax by Stripe Tax), plus the
 existing `RESEND_API_KEY`, `MAIL_FROM`, `CONTACT_TO`. Optional: `ORDER_TO` (who gets order alerts, comma
 list; default `CONTACT_TO`). Tables: `supabase/migrations/20261115_orders.sql`. Test keys (`sk_test_`) give
 test orders, marked "Test" in the admin and "[TEST]" in emails.

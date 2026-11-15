@@ -3,6 +3,7 @@
 // every price is looked up here from the saved site content, so nobody can change a price in the browser.
 // Secrets: STRIPE_SECRET_KEY (sk_test_... while testing, sk_live_... at launch).
 // Optional: SITE_ORIGINS (comma list of extra site addresses allowed to return to after paying).
+// Optional: STRIPE_TAX = "on" adds sales tax with Stripe Tax (turn Stripe Tax on in the Stripe dashboard first).
 // The order itself is saved and emailed by the "stripe-webhook" function once Stripe confirms payment.
 import Stripe from "npm:stripe@17.7.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
@@ -59,6 +60,7 @@ Deno.serve(async (req) => {
   const page = returnPage(b.page);
   if (!page) return json({ error: "Checkout isn't available from this address." }, 400);
   const items = Array.isArray(b.items) ? b.items.slice(0, 25) : [];
+  const TAX = (Deno.env.get("STRIPE_TAX") || "").toLowerCase() === "on";
   if (!items.length) return json({ error: "Your cart is empty." }, 400);
 
   const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
@@ -105,6 +107,7 @@ Deno.serve(async (req) => {
         quantity: qty,
         price_data: {
           currency: "usd",
+          ...(TAX ? { tax_behavior: "exclusive" as const } : {}),
           unit_amount: Math.round(+pr[1] * 100),
           product_data: {
             name: `${st.name}, No. ${n}${title ? " · " + title : ""}`.slice(0, 250),
@@ -127,6 +130,7 @@ Deno.serve(async (req) => {
         quantity: 1,
         price_data: {
           currency: "usd",
+          ...(TAX ? { tax_behavior: "exclusive" as const } : {}),
           unit_amount: Math.round(+v.price * 100),
           product_data: {
             name: (plain(v.title) || "Vintage print").slice(0, 250),
@@ -154,9 +158,11 @@ Deno.serve(async (req) => {
           type: "fixed_amount",
           display_name: shipRate > 0 ? "Shipping within the United States" : "Free shipping within the United States",
           fixed_amount: { amount: Math.round(shipRate * 100), currency: "usd" },
+          ...(TAX ? { tax_behavior: "exclusive" as const, tax_code: "txcd_92010001" } : {}),
         },
       }],
       phone_number_collection: { enabled: true },
+      ...(TAX ? { automatic_tax: { enabled: true } } : {}),
       billing_address_collection: "auto",
       success_url: `${base}?order={CHECKOUT_SESSION_ID}#/order`,
       cancel_url: `${base}#/cart`,
