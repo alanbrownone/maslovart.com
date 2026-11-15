@@ -97,6 +97,10 @@
   .mrow .mbtns{display:flex;gap:8px;flex-wrap:wrap;}
   table.hist{width:100%;border-collapse:collapse;font-size:14px;}
   table.hist td,table.hist th{text-align:left;padding:8px;border-bottom:1px solid var(--line);}
+  .soldbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fbf3f2;border:1px solid #ecc9c5;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:14px;color:#7a2a22;} .soldbar b{letter-spacing:.08em;text-transform:uppercase;font-size:12px;} .soldbar button{padding:3px 10px;font-size:13px;}
+  .orow .tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:2px 7px;background:#eee;color:#555;} .orow .tag.paid{background:#fff1d6;color:#8a5a00;} .orow .tag.shipped{background:#e5f3ef;color:var(--teal);} .orow .tag.cancelled{background:#f3e3e1;color:var(--red);} .orow .tag.test{background:#e8e8f6;color:#44448a;}
+  .orow .oitems{margin:10px 0;padding:0;list-style:none;font-size:14.5px;} .orow .oitems li{padding:4px 0;border-bottom:1px solid #f0f0ec;display:flex;justify-content:space-between;gap:12px;} .orow .ocols{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;font-size:14px;margin-bottom:10px;} .orow .ocols b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#888;}
+  @media (max-width:600px){.orow .ocols{grid-template-columns:1fr;}}
   .hidden{display:none !important;}
   @media (max-width:600px){.prow{grid-template-columns:1fr 100px 34px;} main{padding:16px 16px 140px;} .bar{padding:10px 16px;}}
 </style>
@@ -176,6 +180,20 @@
       <div id="v-groups"></div>
       <div id="t-vintage"></div>
       <div id="v-add"></div><div class="msg" id="m-vintage"></div>
+    </section>
+
+    <section data-tab="orders">
+      <p class="intro">Prints people bought on the site. Each order also comes by email. New orders are in bold until you mark them shipped. Payments, receipts and refunds are in Stripe.</p>
+      <div class="card"><div id="t-orders"></div>
+        <p class="hint hidden" id="o-empty">No orders yet.</p></div>
+    </section>
+
+    <section data-tab="shipping">
+      <p class="intro">What buyers pay for shipping, added at checkout. It is one charge per order, however many prints are in it. Checkout is open to addresses in the United States only; other countries ask for a quote first.</p>
+      <div class="card">
+        <label for="s-us" style="margin-top:0">Shipping within the United States, per order ($)</label><input type="number" id="s-us" min="0" step="1" style="max-width:200px">
+        <p class="hint">Type 0 for free shipping. Press Save to use the new amount.</p>
+      </div>
     </section>
 
     <section data-tab="bio">
@@ -283,7 +301,7 @@
   // HTML from the page -> text with **bold**
   function htmlToText(html){var d=document.createElement("div");d.innerHTML=String(html).replace(/<\/?(b|strong)>/gi,"**");return d.textContent.replace(/\s+/g," ").trim();}
 
-  var DEFAULTS=null, doc=null, SETS=[], DECADES=[], dirty=false, recovering=false, userEmail="", userRole="", startHash=location.hash;
+  var SHIP_DEFAULT=15, SOLDV=[], DEFAULTS=null, doc=null, SETS=[], DECADES=[], dirty=false, recovering=false, userEmail="", userRole="", startHash=location.hash;
 
   // ---------- starting values come from the site itself ----------
   function loadDefaults(){return new Promise(function(res,rej){var f=$("sitefrm"),done=false;
@@ -331,17 +349,19 @@
       d.items[s.slug]=srcs.map(function(src,i){return {src:src,title:t[i+1]||"",np:np.indexOf(i+1)>=0};});});
     delete d.photos;
     if(typeof saved.numberWithTitle=="boolean")d.numberWithTitle=saved.numberWithTitle;
+    d.shipping={us:saved.shipping&&saved.shipping.us!=null&&saved.shipping.us!==""?+saved.shipping.us:SHIP_DEFAULT};
     return d;}
 
   function setDirty(v){dirty=v;var s=$("state");s.textContent=v?"You have unsaved changes.":"All changes saved.";s.classList.toggle("dirty",v);$("save").disabled=!v;if(v)$("m-save").textContent="";}
   window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
 
   // ---------- tabs ----------
-  var TABS=[["prices","Sizes & prices"],["series","Series"],["photos","Photos"],["vintage","Vintage Prints"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["subscribers","Mailing list"],["team","Users"],["history","Earlier versions"]];
+  var TABS=[["prices","Sizes & prices"],["series","Series"],["photos","Photos"],["vintage","Vintage Prints"],["orders","Orders"],["shipping","Shipping"],["bio","The Artist"],["contact","Contact"],["messages","Messages"],["subscribers","Mailing list"],["team","Users"],["history","Earlier versions"]];
   // The admin home screen: one button per area. An area with several parts gets small tabs inside it.
   var AREAS=[
     {id:"newprints",title:"New Prints",desc:"Add, delete and reorder series; their text, photos, sizes and prices.",tabs:["prices","series","photos"]},
     {id:"vintage",title:"Vintage Prints",desc:"Vintage series and one-of-a-kind prints: photo, details, size and price.",tabs:["vintage"]},
+    {id:"orders",title:"Orders",desc:"Prints bought on the site, and the shipping charge.",tabs:["orders","shipping"]},
     {id:"bio",title:"The Artist",desc:"Introduction, statement, biography, achievements, portrait and venue logos.",tabs:["bio"]},
     {id:"contact",title:"Contact",desc:"Phone and email shown on the Contact page.",tabs:["contact"]},
     {id:"messages",title:"Messages",desc:"Messages sent from the Contact form.",tabs:["messages"]},
@@ -355,7 +375,7 @@
   function showTab(t){var a=areaOf(t);$("home").classList.add("hidden");$("area").classList.remove("hidden");$("area-title").textContent=a.title;
     var tb=$("tabs");tb.innerHTML="";if(a.tabs.length>1)a.tabs.forEach(function(x){tb.appendChild(el("button",{type:"button","data-t":x,text:tabName(x),className:x==t?"on":"",onclick:function(){showTab(x);}}));});
     document.querySelectorAll("#v-app section").forEach(function(s){s.classList.toggle("hidden",s.dataset.tab!=t);});
-    if(t=="history")loadHistory();if(t=="messages")loadMessages();if(t=="subscribers")loadSubs();if(t=="team")loadTeam();window.scrollTo(0,0);}
+    if(t=="history")loadHistory();if(t=="orders")loadOrders();if(t=="messages")loadMessages();if(t=="subscribers")loadSubs();if(t=="team")loadTeam();window.scrollTo(0,0);}
   AREAS.forEach(function(a){$("homegrid").appendChild(el("button",{type:"button","data-area":a.id,onclick:function(){showTab(a.tabs[0]);}},[el("b",{text:a.title}),el("span",{text:a.desc})]));});
   $("go-home").addEventListener("click",showHome);
 
@@ -466,7 +486,10 @@
       var dec=[el("label",{text:"Series (heading on the page)"}),sel];
       yr[1].addEventListener("input",function(e){var y=String(e.target.value).match(/\b(19|20)\d\d\b/),g=y&&y[0].slice(0,3)+"0s";if(g&&!v.decade&&doc.vgroups.indexOf(g)>=0){v.decade=g;sel.value=g;}});
       box.appendChild(el("div",{className:"card vrow"},[el("div",{},[img,replace]),
-        el("div",{},[].concat(f("Title","title",{type:"text",placeholder:"e.g. Steps, Simeiz"}),
+        el("div",{},[].concat(SOLDV.indexOf(v.src)>=0?[el("div",{className:"soldbar"},[el("b",{text:"Sold"}),el("span",{text:"Bought online. The site shows it as Sold."}),
+            el("button",{type:"button",text:"Make available again",onclick:function(){if(!confirm("Put \""+(v.title||"this print")+"\" back on sale? Only do this if the sale was cancelled."))return;
+              sb.from("vintage_sold").delete().eq("src",v.src).then(function(r){if(r.error)return alert("Couldn't change it: "+r.error.message);SOLDV=SOLDV.filter(function(x){return x!=v.src;});drawVintage();});}})])]:[],
+          f("Title","title",{type:"text",placeholder:"e.g. Steps, Simeiz"}),
           two(yr,dec),
           two(f("Year printed","printed",{type:"text",placeholder:"e.g. 1995"}),f("Inventory number","code",{type:"text",placeholder:"e.g. 300_1131 MO"})),
           f("Handwriting on front","front",{type:"text",placeholder:"e.g. Guennadi Maslov '95"}),
@@ -491,6 +514,7 @@
     bindText("b-biography",function(){return fromParas(doc.bio.biography);},function(v){doc.bio.biography=toParas(v);});
     bindText("c-phone",function(){return doc.contact.phone;},function(v){doc.contact.phone=v.trim();});
     bindText("c-email",function(){return doc.contact.email;},function(v){doc.contact.email=v.trim();});
+    bindText("s-us",function(){return doc.shipping.us;},function(v){doc.shipping.us=v.trim()===""?"":+v;});
     $("ph-numtitle").checked=doc.numberWithTitle;}
 
   // ---------- Uploads (to Cloudinary, signed by our Supabase helper) ----------
@@ -554,6 +578,7 @@
     d.achievements.forEach(function(a){if(!a.title)problems.push("Every achievement needs a title.");});
     if(JSON.stringify(d.achievements)==JSON.stringify(DEFAULTS.achievements))delete d.achievements;
     if(!/^\S+@\S+\.\S+$/.test(d.contact.email))problems.push("The contact email doesn't look right.");
+    if(d.shipping.us===""||!(+d.shipping.us>=0))problems.push("Please fill in the shipping charge (0 for free shipping).");else d.shipping={us:Math.round(+d.shipping.us*100)/100};
     return {doc:d,problems:problems.filter(function(p,i,a){return a.indexOf(p)==i;})};}
   $("save").addEventListener("click",function(){var c=cleaned(),m=$("m-save");
     if(c.problems.length){m.className="msg err";m.textContent=c.problems.join(" ");return;}
@@ -587,6 +612,28 @@
         d.appendChild(el("div",{className:"mbtns"},btns));
         d.addEventListener("toggle",function(){if(d.open&&!x.is_read)setRead(true);});
         box.appendChild(d);});});}
+
+  // ---------- Orders (saved by the stripe-webhook helper after Stripe confirms payment) ----------
+  var O_STATUS={paid:"Paid, to ship",shipped:"Shipped",cancelled:"Cancelled"};
+  function usd(c){return "$"+(c/100).toFixed(2).replace(/\.00$/,"");}
+  function loadOrders(){var box=$("t-orders");box.innerHTML="<p class=hint>Loading…</p>";
+    sb.from("orders").select("*").order("created_at",{ascending:false}).limit(300).then(function(r){box.innerHTML="";
+      if(r.error){box.appendChild(el("p",{className:"msg err",text:"Couldn't load orders: "+r.error.message}));return;}
+      var L=r.data||[];$("o-empty").classList.toggle("hidden",L.length>0);
+      L.forEach(function(o){var a=o.ship_address||{},tag=el("span",{className:"tag "+o.status,text:O_STATUS[o.status]||o.status});
+        var addr=[o.ship_name,a.line1,a.line2,[a.city,a.state].filter(Boolean).join(", ")+(a.postal_code?" "+a.postal_code:""),a.country&&a.country!="US"?a.country:""].filter(function(x){return x&&String(x).trim();});
+        var d=el("details",{className:"mrow orow"+(o.status=="paid"?" new":"")},[el("summary",{},[el("span",{text:"#"+o.id}),tag,o.livemode?null:el("span",{className:"tag test",text:"Test"}),
+            el("span",{text:(o.customer_name||o.email||"")+" \u00b7 "+usd(o.total_cents)}),el("span",{className:"mdate",text:new Date(o.created_at).toLocaleString()})]),
+          el("ul",{className:"oitems"},(o.items||[]).map(function(i){return el("li",{},[el("span",{text:i.name+(i.qty>1?" \u00d7 "+i.qty:"")+(i.description?" \u2014 "+i.description:"")}),el("b",{text:usd(i.total_cents||0)})]);})),
+          el("div",{className:"ocols"},[el("div",{},[el("b",{text:"Buyer"}),el("div",{text:o.customer_name||""}),el("a",{href:"mailto:"+(o.email||""),text:o.email||""}),el("div",{text:o.phone||""})]),
+            el("div",{},[el("b",{text:"Ship to"})].concat(addr.map(function(x){return el("div",{text:x});})))]),
+          el("p",{className:"mmeta",text:"Prints "+usd(o.subtotal_cents)+" \u00b7 shipping "+usd(o.shipping_cents)+(o.tax_cents?" \u00b7 tax "+usd(o.tax_cents):"")+" \u00b7 total "+usd(o.total_cents)+(o.shipped_at?" \u00b7 shipped "+new Date(o.shipped_at).toLocaleDateString():"")+(o.emails_sent?"":" \u00b7 confirmation emails not sent")})]);
+        var set=function(st){var up={status:st,shipped_at:st=="shipped"?new Date().toISOString():null};
+          sb.from("orders").update(up).eq("id",o.id).then(function(u){if(u.error)return alert("Couldn't update: "+u.error.message);loadOrders();});};
+        var btns=[];if(o.status!="shipped")btns.push(el("button",{type:"button",className:"primary",text:"Mark as shipped",onclick:function(){set("shipped");}}));
+        if(o.status!="paid")btns.push(el("button",{type:"button",text:"Mark as not shipped yet",onclick:function(){set("paid");}}));
+        if(o.status!="cancelled")btns.push(el("button",{type:"button",className:"danger",text:"Mark as cancelled",onclick:function(){if(confirm("Mark order #"+o.id+" as cancelled? This only changes the label here. Refund the money in Stripe."))set("cancelled");}}));
+        d.appendChild(el("div",{className:"mbtns"},btns));box.appendChild(d);});});}
 
   // ---------- Mailing list ----------
   var SUB_STATUS={confirmed:"Confirmed",pending:"Waiting to confirm",unsubscribed:"Unsubscribed"},SUBS=[];
@@ -671,8 +718,8 @@
   function enter(session){if(!session){view("v-login");return;}
     userEmail=session.user.email;$("who").textContent=userEmail;$("who").classList.remove("hidden");$("signout").classList.remove("hidden");view("v-loading");
     sb.rpc("my_role").then(function(r){if(r.error||!r.data){view("v-denied");return;}userRole=r.data;
-      Promise.all([loadDefaults(),sb.from("site_content").select("value").eq("key","site").maybeSingle()]).then(function(a){
-        if(a[1].error)throw a[1].error;
+      Promise.all([loadDefaults(),sb.from("site_content").select("value").eq("key","site").maybeSingle(),sb.from("vintage_sold").select("src")]).then(function(a){
+        if(a[1].error)throw a[1].error;SOLDV=((a[2]&&a[2].data)||[]).map(function(x){return x.src;});
         doc=merge(a[1].data&&a[1].data.value);
         drawAll();setDirty(false);view("v-app");
         showHome();
