@@ -472,6 +472,10 @@
       if(c.bio.statement)document.getElementById("st").innerHTML="<h2>Artist Statement</h2>"+paras(c.bio.statement).map(function(p){return '<p class="serif">'+rich(p)+"</p>";}).join("");
       if(c.bio.portrait&&/^https:\/\/res\.cloudinary\.com\//.test(c.bio.portrait))document.getElementById("portrait").style.backgroundImage='url("'+cld(c.bio.portrait,"f_auto,q_auto,w_1000")+'")';
       if(c.bio.biography)document.getElementById("bio").innerHTML="<h2>Biography</h2>"+paras(c.bio.biography).map(function(p){return "<p>"+rich(p)+"</p>";}).join("");}
+    // Achievements & Exhibitions list, newest first as ordered in the admin
+    if(Array.isArray(c.achievements)){var A=c.achievements.filter(function(a){return a&&String(a.title||"").trim();});
+      document.getElementById("ach").style.display=A.length?"":"none";document.getElementById("ach").innerHTML="<h2>Achievements &amp; Exhibitions</h2>"+A.map(function(a){var t=String(a.title).trim(),pl=String(a.place||"").trim();
+        return '<div class="ach"><span class="y">'+esc(a.year)+'</span><span class="t"><b>'+esc(t)+(/[.!?:]$/.test(t)?"":".")+"</b>"+(pl?" "+esc(pl):"")+"</span></div>";}).join("");}
     if(Array.isArray(c.logos))document.getElementById("logos").innerHTML=c.logos.filter(function(l){return l&&safeSrc(l.src);}).map(function(l){
       return '<span class="lg"><img src="'+esc(cld(l.src,"f_auto,q_auto,h_160"))+'" alt="'+esc(l.alt||"")+'" loading="lazy"></span>';}).join("");
     drawSets();drawNpSets();}
