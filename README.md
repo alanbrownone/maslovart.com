@@ -48,3 +48,17 @@ the Supabase helper `cloudinary-sign` for permission first; it only says yes to 
 - **Every save in the admin** is also kept in "Earlier versions" (table `site_content_history`).
 - **Daily off-site copy:** `.github/workflows/daily-backup.yml` runs every night. It saves the site content as JSON plus every Cloudinary photo it uses to the `backups` branch of this repo (last 90 days of content). Run it by hand from the GitHub Actions tab.
 - Photos stored in `images/` are part of this repo, so GitHub keeps every version of them.
+
+## Online orders (Stripe)
+
+Version 3 has a cart (the cart icon in the header, page `#/cart`), kept in the visitor's browser.
+"Check out" calls the Supabase edge function `checkout`, which looks up every price again from the saved
+site content and opens a Stripe Checkout payment page (United States shipping only, one flat shipping
+charge per order, set in admin > Orders > Shipping). After payment Stripe calls the edge function
+`stripe-webhook`, which saves the order (table `orders`, shown in admin > Orders), marks vintage prints as
+sold (table `vintage_sold`, the site then shows "Sold"), and emails the buyer and Guennadi through Resend.
+
+Secrets (Supabase > Edge Functions > Secrets): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, plus the
+existing `RESEND_API_KEY`, `MAIL_FROM`, `CONTACT_TO`. Optional: `ORDER_TO` (who gets order alerts, comma
+list; default `CONTACT_TO`). Tables: `supabase/migrations/20261115_orders.sql`. Test keys (`sk_test_`) give
+test orders, marked "Test" in the admin and "[TEST]" in emails.
