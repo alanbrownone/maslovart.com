@@ -1,0 +1,282 @@
+[
+    {
+        "key": "site",
+        "value": {
+            "bio": {
+                "lede": "Photographer, artist, and educator. Originally from Ukraine, working between Eastern Europe and the United States.",
+                "portrait": "images/guennadi-portrait-v2.jpg",
+                "biography": [
+                    "Originally from Ukraine, Guennadi Maslov has nearly 28 years of professional experience in the United States and Europe as a photographer, artist and photo educator. In addition to his artistic work, Maslov teaches photography at area colleges and exhibits his photographs locally, nationally, and internationally.",
+                    "He often visits his native Ukraine, where, as the photographer puts it, \u201cCommon nostalgia often leads to personal artistic discoveries.\u201d"
+                ],
+                "statement": [
+                    "**My work is a translation.** It is an attempt to translate the verse of life encounters into the poetry of photography \u2014 an attempt to catch the fluid material of the subconscious and put it on a somewhat more stable base of photographic paper.",
+                    "**My work is a reconciliation** \u2014 an effort to reconcile the Eastern and Western halves of my brain.",
+                    "**My work is an illustration** \u2014 a never-ending quest to illustrate the fragile dualities of human nature."
+                ]
+            },
+            "logos": [
+                {
+                    "alt": "Cincinnati Art Museum",
+                    "src": "images/logos/cincinnati-art-museum.jpg"
+                },
+                {
+                    "alt": "Contemporary Arts Center",
+                    "src": "images/logos/cac.jpg"
+                },
+                {
+                    "alt": "FotoFest",
+                    "src": "images/logos/fotofest.jpg"
+                },
+                {
+                    "alt": "International Photography Awards",
+                    "src": "images/logos/ipa.png"
+                },
+                {
+                    "alt": "European Month of Photography, Bratislava",
+                    "src": "images/logos/emop-bratislava.jpg"
+                },
+                {
+                    "alt": "European Month of Photography, Kyiv",
+                    "src": "images/logos/emop-kyiv.jpg"
+                },
+                {
+                    "alt": "Grynyov Art Collection",
+                    "src": "images/logos/grynyov-art-collection.jpg"
+                },
+                {
+                    "alt": "Lesley University",
+                    "src": "images/logos/lesley-university.jpg"
+                },
+                {
+                    "alt": "MOKSOP",
+                    "src": "images/logos/moksop.jpg"
+                },
+                {
+                    "alt": "Weston Art Gallery",
+                    "src": "images/logos/weston-art-gallery.jpg"
+                },
+                {
+                    "alt": "Cintas Center",
+                    "src": "images/logos/cintas-center.jpg"
+                },
+                {
+                    "alt": "Riffe Gallery",
+                    "src": "images/logos/riffe-gallery.jpg"
+                },
+                {
+                    "alt": "Washington Park",
+                    "src": "images/logos/washington-park.jpg"
+                },
+                {
+                    "alt": "VASA Project",
+                    "src": "images/logos/vasa.jpg"
+                },
+                {
+                    "alt": "Mykolaiv regional library",
+                    "src": "images/logos/mykolaiv-library.jpg"
+                },
+                {
+                    "alt": "The Carnegie",
+                    "src": "images/logos/carnegie.jpg"
+                },
+                {
+                    "alt": "Hanna House Books",
+                    "src": "images/logos/hanna-house-books.jpg"
+                },
+                {
+                    "alt": "International House",
+                    "src": "images/logos/international-house.jpg"
+                }
+            ],
+            "photos": {},
+            "prices": {
+                "soul-time": [
+                    [
+                        "10 x 10 in",
+                        110
+                    ],
+                    [
+                        "14 x 14 in",
+                        140
+                    ],
+                    [
+                        "16 x 16 in",
+                        160
+                    ],
+                    [
+                        "20 x 20 in",
+                        200
+                    ]
+                ],
+                "annotations": [
+                    [
+                        "11 x 14 in",
+                        120
+                    ],
+                    [
+                        "14 x 16 in",
+                        140
+                    ],
+                    [
+                        "16 x 20 in",
+                        180
+                    ]
+                ],
+                "stealing-time": [
+                    [
+                        "9 x 14 in",
+                        140
+                    ],
+                    [
+                        "10 x 16 in",
+                        160
+                    ],
+                    [
+                        "12 x 20 in",
+                        220
+                    ]
+                ],
+                "ukrainian-time": [
+                    [
+                        "10 x 10 in",
+                        110
+                    ],
+                    [
+                        "14 x 14 in",
+                        140
+                    ],
+                    [
+                        "16 x 16 in",
+                        160
+                    ],
+                    [
+                        "20 x 20 in",
+                        200
+                    ]
+                ],
+                "from-ukraine-war": [
+                    [
+                        "5 x 14 in",
+                        140
+                    ],
+                    [
+                        "6 x 18 in",
+                        190
+                    ],
+                    [
+                        "8 x 24 in",
+                        220
+                    ],
+                    [
+                        "10 x 30 in",
+                        280
+                    ]
+                ],
+                "this-land-is-my-land": [
+                    [
+                        "5 x 14 in",
+                        140
+                    ],
+                    [
+                        "6 x 18 in",
+                        190
+                    ],
+                    [
+                        "8 x 24 in",
+                        220
+                    ],
+                    [
+                        "10 x 30 in",
+                        280
+                    ]
+                ]
+            },
+            "series": {
+                "soul-time": {
+                    "by": "",
+                    "name": "Soul Time",
+                    "intro": [
+                        "There is something absorbing and enigmatic about the dim journey over your own soul and memory that takes place at night. Did you ever try to write down your dreams? I photograph them instead. The best time is right before dawn. I know all the stories behind these foggy images. Some people say they can see echoes of their own experience in these ephemeral visual cocktails. Real events often creep into them, as well as some historical figures. I do not try to keep them out. Actually, I have come to enjoy their company!"
+                    ]
+                },
+                "annotations": {
+                    "by": "Claude Paar",
+                    "name": "Annotations",
+                    "intro": [
+                        "The series is based on the simple fact that one image is often not enough to express a complex idea.",
+                        "Multiple photo illustrations appeared in American and European magazines in the late 1920\u2019s. The success of this approach led to the Golden Age of magazine photojournalism in the 1950-1970\u2019s when pages and pages of documentary photographs were sparsely illustrated with short textual notes.",
+                        "Maslov\u2019s work, however, belongs to a completely different realm of combined imaging. His Annotations are more psychological insight than document. Deeply rooted in reality they are strangely enigmatic.",
+                        "The artist is obviously concerned with social themes and the mysteries of growing up. Political undertones can be discovered in some of the images. But these themes are neither dominant, nor critical. The smaller image in each pair is noticed and examined just a second after the mental absorption of the larger one. In most cases this footnote photo redirects the first impression considerably, enhancing it with an important layer, forming a new unity. And in that I see the Annotations\u2019 strength and beauty."
+                    ]
+                },
+                "stealing-time": {
+                    "by": "",
+                    "name": "Stealing Time",
+                    "intro": [
+                        "What happens to the moment that just zoomed by my temple a second ago? Where does it go after ruffling my senses and counting my next heartbeat? The camera in my hands is a moment hunting weapon. It is a tool of beauty and love. It absorbs the illusive instant and locks it in the pixel cage of illusion \u2013 the illusion of immortality and possession.",
+                        "A scrooge, I feed the seized slice of existence into my computer. This moment is mine and mine only. I save it and name it; I prepare it for the ritual of digital mummification. I am a proud proprietor of salvaged moments\u2026"
+                    ]
+                },
+                "ukrainian-time": {
+                    "by": "",
+                    "name": "Ukrainian Time",
+                    "intro": [
+                        "The flow of time is frivolous in Ukraine. Though Tuesdays usually follow Mondays like everywhere else, but the logic of how the time current is perceived and entangled with the people\u2019s souls and minds, makes me speak about UKRAINIAN TIME.",
+                        "History and circumstance have made Eastern Europe a colossal testing ground for human endurance and endeavor. This ground is inhabited by my heroes, whom I see sometimes as proud and earnest, and sometimes as eccentric and confused.",
+                        "Life never stops for the 40 million energetic, resourceful and lyrical people who call themselves Ukrainians. Looking into the nation\u2019s character, the one hundred photographs in this book endeavor to trace lives and emotions of ordinary people, to illustrate the inner struggle and beauty of individuals living through a most dramatic time in their country\u2019s history."
+                    ]
+                },
+                "from-ukraine-war": {
+                    "by": "",
+                    "name": "From Ukraine War: With and Without Love",
+                    "intro": [
+                        "Steppe: a large, flat area of land with grass and very few trees especially in Eastern Europe and Asia. (Merriam-Webster Learner\u2019s Dictionary, 2026)",
+                        "The scars of human activity defy the dictionary description. For centuries people have dug into the steppe\u2019s belly extracting coal and ore. For centuries the slagheaps have been growing nearby. The war came seven years ago with its mine-craters and shell-holes. Hiding from the metal flying around, the people covered the area with trenches and dug-outs. No mercy to each other, no mercy to the \u201cflat area with grass\u201d.",
+                        "But the steppe will survive. Like it did after the hurricane of WW2 that scorched this land in the 1940s. Will the people survive? They hide from each other\u2019s shots, (while seeking targets for shots of their own); more metal flies. More than 500,000 Russians and Ukrainians have died in this war. Most of them are buried here, in the steppe. Many were put to rest where they had come from: hundreds of villages and towns in Ukraine and Russia. The steppe is silent, the steppe keeps low profile\u2026"
+                    ]
+                },
+                "this-land-is-my-land": {
+                    "by": "",
+                    "name": "This Land is My Land",
+                    "intro": [
+                        "Panoramic photography is a technique of photography, using specialized equipment or software, which captures images with horizontally elongated fields of view. (Wikipedia, 2026)",
+                        "There is something melancholic, something reflective in the panorama. It leads you, your imagination and wonder. But it does not want you too close, it prefers to stay aloof. The panorama is full of beautiful information. This information appears strangely complete and whilst quietly enigmatic."
+                    ]
+                }
+            },
+            "titles": {
+                "soul-time": {},
+                "annotations": {},
+                "stealing-time": {},
+                "ukrainian-time": {},
+                "from-ukraine-war": {},
+                "this-land-is-my-land": {}
+            },
+            "contact": {
+                "email": "guennadi@maslovart.com",
+                "phone": "513-319-3033"
+            },
+            "noprint": {
+                "soul-time": [
+                    19
+                ],
+                "annotations": [
+                    31
+                ],
+                "stealing-time": [],
+                "ukrainian-time": [
+                    21,
+                    22
+                ],
+                "from-ukraine-war": [
+                    21,
+                    22
+                ],
+                "this-land-is-my-land": []
+            },
+            "numberWithTitle": true
+        },
+        "updated_at": "2026-11-12T17:34:42.826729+00:00"
+    }
+]
